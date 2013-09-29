@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import os
 import sys
 import re
 import random
@@ -30,6 +31,8 @@ class Doge():
         self.tty_width = tty_width
         self.doge_path = doge_path
 
+        self.real_data = []
+
     def setup(self):
         doge = self.load_doge()
 
@@ -37,18 +40,45 @@ class Doge():
         self.lines = ['\n' for x in range(self.tty_height - len(doge) - 2)]
         self.lines += doge
 
+        self.get_real_data()
+        self.apply_text()
+
     def apply_text(self):
         linelen = len(self.lines)
         affected = random.sample(range(linelen), int(linelen / 4))
+        real_targets = random.sample(affected, len(self.real_data))
 
         for x in affected:
             line = self.lines[x]
             line = re.sub('\n', ' ', line)
-            msg = DogeMessage(self.tty_width, clean_len(line))
+
+            word = None
+            if x in real_targets and random.choice(range(2)) == 0:
+                word = self.real_data.pop()
+
+            msg = DogeMessage(self.tty_width, clean_len(line), word=word)
             self.lines[x] = '{0}{1}'.format(line, msg)
 
     def load_doge(self):
         return open(self.doge_path).readlines()
+
+    def get_real_data(self):
+        username = os.environ.get('USER')
+        if username:
+            self.real_data.append(username)
+
+        editor = os.environ.get('EDITOR')
+        if editor:
+            editor = editor.split('/')[-1]
+            self.real_data.append(editor)
+
+        uname = os.uname()
+        self.real_data.append(uname[0])
+        self.real_data.append(uname[1])
+        self.real_data.append(uname[4])  # lel
+
+        random.shuffle(self.real_data)
+        self.real_data = list(map(str.lower, self.real_data))
 
     def generate(self):
         for line in self.lines:
@@ -63,8 +93,9 @@ class DogeMessage():
     ]
 
     words = [
-        'computer', 'hax0r', 'code', 'data', 'internet', 'server', 'linux',
-        'hacker', 'terminal', 'doge', 'shibe', 'program', 'free software'
+        'computer', 'hax0r', 'code', 'data', 'internet', 'server',
+        'hacker', 'terminal', 'doge', 'shibe', 'program', 'free software',
+        'web scale', 'monads', 'git', 'daemon'
     ]
 
     suffixes = [
@@ -98,9 +129,9 @@ class DogeMessage():
 
     def generate(self):
         if not self.word:
-            word = random.choice(self.words)
+            self.word = random.choice(self.words)
 
-        msg = '{0} {1}'.format(random.choice(self.prefixes), word)
+        msg = '{0} {1}'.format(random.choice(self.prefixes), self.word)
 
         if random.choice(range(15)) == 0:
             msg += ' {0}'.format(random.choice(self.suffixes))
@@ -132,7 +163,6 @@ def main():
     tty_height, tty_width = get_tty_size()
     shibe = Doge(tty_height, tty_width)
     shibe.setup()
-    shibe.apply_text()
     shibe.generate()
 
 # wow very main
