@@ -7,7 +7,7 @@ setup(
     author='Lowe Thiderman',
     author_email='lowe.thiderman@gmail.com',
     description=('wow very doge'),
-    license='BSD',
+    license='MIT',
     entry_points={
         'console_scripts': [
             'doge = doge.doge:main'
