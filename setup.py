@@ -2,14 +2,14 @@ from distutils.core import setup
 
 setup(
     name='doge',
-    version='0.4.0',
+    version='0.4.1',
     url='https://github.com/thiderman/doge',
     author='Lowe Thiderman',
     author_email='lowe.thiderman@gmail.com',
     description=('wow very terminal doge'),
     license='MIT',
     packages=['doge'],
-    package_data={'doge': ['*/*.txt']},
+    package_data={'doge': ['static/*.txt']},
     scripts=[
         'bin/doge'
     ],

@@ -40,6 +40,14 @@ class Doge():
     def setup(self):
         doge = self.load_doge()
 
+        max_doge = max(map(clean_len,  doge)) + 15
+        if self.tty_width < max_doge:
+            sys.stderr.write('wow, such small terminal\n')
+            sys.stderr.write('no doge under {0} column\n'.format(max_doge))
+            sys.stderr.flush()
+
+            sys.exit(1)
+
         # so many line
         self.lines = ['\n' for x in range(self.tty_height - len(doge) - 2)]
         self.lines += doge
