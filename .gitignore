@@ -19,6 +19,7 @@ lib
 lib64
 include
 share
+MANIFEST
 
 # Installer logs
 pip-log.txt
