@@ -7,6 +7,10 @@ import re
 import random
 import subprocess as sp
 
+from os.path import dirname, join
+
+ROOT = dirname(dirname(__file__))
+
 # wow remove darkest unread color
 WOW_COLORS = (
     23, 24, 25, 26, 27, 29, 30, 31, 32, 33, 35, 36, 37, 38, 39, 41, 42, 43, 44,
@@ -24,7 +28,7 @@ WOW_COLORS = (
 
 
 class Doge():
-    default_doge = 'static/doge.txt'
+    default_doge = join(ROOT, 'static/doge.txt')
 
     def __init__(self, tty_height, tty_width, doge_path=default_doge):
         self.tty_height = tty_height
