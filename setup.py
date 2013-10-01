@@ -17,5 +17,7 @@ setup(
         'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Operating System :: Unix',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 2',
     ],
 )

@@ -64,7 +64,8 @@ class Doge():
             self.lines[x] = '{0}{1}'.format(line, msg)
 
     def load_doge(self):
-        return open(self.doge_path).readlines()
+        with open(self.doge_path) as f:
+            return f.readlines()
 
     def get_real_data(self):
         username = os.environ.get('USER')
@@ -128,6 +129,12 @@ class DogeMessage():
 
     def displace(self):
         interval = self.tty_width - len(self.orig_message) - self.occupied
+
+        # wow don't fit
+        if interval < 1:
+            self.message = ''
+            return
+
         space = ' ' * random.choice(range(interval))
         self.message = '{0}{1}'.format(space, self.message)
 
@@ -159,7 +166,13 @@ def get_tty_size():
 
 
 def clean_len(s):
-    s = re.sub('.*?m', '', s)
+    # wow encoding trouble
+    # such 2013
+    if sys.version_info < (3, 0):
+        s = s.decode('utf-8')
+
+    s = re.sub(r'\[[0-9;]*m', '', s)
+
     return len(s)
 
 
