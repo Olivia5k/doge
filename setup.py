@@ -1,4 +1,4 @@
-from setuptools import setup
+from distutils.core import setup
 
 setup(
     name='doge',
@@ -9,14 +9,10 @@ setup(
     description=('wow very doge'),
     license='MIT',
     packages=['doge'],
-    package_dir={'doge': '.'},  # wow python why
-    package_data={'doge': ['static/*.txt']},
-    include_package_data=True,
-    entry_points={
-        'console_scripts': [
-            'doge = doge.doge:main'
-        ]
-    },
+    package_data={'doge': ['*/*.txt']},
+    scripts=[
+        'bin/doge'
+    ],
     classifiers=[
         'Development Status :: 4 - Beta'
         'Environment :: Console'

@@ -9,7 +9,7 @@ import subprocess as sp
 
 from os.path import dirname, join
 
-ROOT = dirname(dirname(__file__))
+ROOT = dirname(__file__)
 
 # wow remove darkest unread color
 WOW_COLORS = (
