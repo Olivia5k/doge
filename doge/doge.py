@@ -37,9 +37,15 @@ class Doge(object):
         self.real_data = []
 
     def setup(self):
-        doge = self.load_doge()
+        if self.tty.is_tty:
+            # is tty, wow get doge
+            doge = self.load_doge()
+            max_doge = max(map(clean_len, doge)) + 15
+        else:
+            # no tty, such no doge
+            doge = []
+            max_doge = 15
 
-        max_doge = max(map(clean_len,  doge)) + 15
         if self.tty.width < max_doge:
             sys.stderr.write('wow, such small terminal\n')
             sys.stderr.write('no doge under {0} column\n'.format(max_doge))
@@ -158,6 +164,10 @@ class DogeMessage(object):
         self.message = msg
 
     def colorize(self):
+        # wow piped
+        if not self.tty.is_tty:
+            return
+
         # very ansi code wow
         self.message = '[1m[38;5;{0}m{1}[39m[0m'.format(
             random.choice(WOW_COLORS), self.message
