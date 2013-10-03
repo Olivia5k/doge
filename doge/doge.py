@@ -5,7 +5,9 @@ import os
 import sys
 import re
 import random
-import subprocess as sp
+import fcntl
+import termios
+import struct
 
 from os.path import dirname, join
 
@@ -39,7 +41,8 @@ class Doge(object):
             sys.exit(1)
 
         # so many line
-        self.lines = ['\n' for x in range(self.tty.height - len(doge) - 2)]
+        # wow leave one line for new prompt
+        self.lines = ['\n' for x in range(self.tty.height - len(doge) - 1)]
         self.lines += doge
 
         self.get_real_data()
@@ -181,11 +184,15 @@ class TTYHandler(object):
         self.is_tty = sys.stdout.isatty()
 
     def get_tty_size(self):
-        # not wow method, should be very api
-        proc = sp.Popen(['stty', 'size'], stdout=sp.PIPE)
-        ret = proc.communicate()[0]
-        height, width = ret.decode().split(' ')
-        return int(height), int(width)
+        # http://stackoverflow.com/questions/566746
+        # lol no idea what actually happen
+        h, w, hp, wp = struct.unpack(
+            'HHHH',
+            fcntl.ioctl(
+                0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)
+            )
+        )
+        return h, w
 
 
 def clean_len(s):
