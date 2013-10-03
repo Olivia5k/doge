@@ -27,12 +27,11 @@ WOW_COLORS = (
 )
 
 
-class Doge():
+class Doge(object):
     default_doge = join(ROOT, 'static/doge.txt')
 
-    def __init__(self, tty_height, tty_width, doge_path=default_doge):
-        self.tty_height = tty_height
-        self.tty_width = tty_width
+    def __init__(self, tty, doge_path=default_doge):
+        self.tty = tty
         self.doge_path = doge_path
 
         self.real_data = []
@@ -41,7 +40,7 @@ class Doge():
         doge = self.load_doge()
 
         max_doge = max(map(clean_len,  doge)) + 15
-        if self.tty_width < max_doge:
+        if self.tty.width < max_doge:
             sys.stderr.write('wow, such small terminal\n')
             sys.stderr.write('no doge under {0} column\n'.format(max_doge))
             sys.stderr.flush()
@@ -49,7 +48,7 @@ class Doge():
             sys.exit(1)
 
         # so many line
-        self.lines = ['\n' for x in range(self.tty_height - len(doge) - 2)]
+        self.lines = ['\n' for x in range(self.tty.height - len(doge) - 2)]
         self.lines += doge
 
         self.get_real_data()
@@ -68,7 +67,7 @@ class Doge():
             if x in real_targets and random.choice(range(2)) == 0:
                 word = self.real_data.pop()
 
-            msg = DogeMessage(self.tty_width, clean_len(line), word=word)
+            msg = DogeMessage(self.tty, clean_len(line), word=word)
             self.lines[x] = '{0}{1}'.format(line, msg)
 
     def load_doge(self):
@@ -99,7 +98,7 @@ class Doge():
         sys.stdout.flush()
 
 
-class DogeMessage():
+class DogeMessage(object):
     prefixes = [
         'wow', 'such', 'very', 'so much', 'many', 'lol', 'beautiful',
         'all the', 'the', 'most', 'very much', 'pretty'
@@ -115,8 +114,8 @@ class DogeMessage():
         'wow', 'lol', 'hax'
     ]
 
-    def __init__(self, tty_width, occupied, word=None):
-        self.tty_width = tty_width
+    def __init__(self, tty, occupied, word=None):
+        self.tty = tty
         self.occupied = occupied
         self.word = word
 
@@ -136,7 +135,7 @@ class DogeMessage():
         return self.__str__()
 
     def displace(self):
-        interval = self.tty_width - len(self.orig_message) - self.occupied
+        interval = self.tty.width - len(self.orig_message) - self.occupied
 
         # wow don't fit
         if interval < 1:
@@ -165,12 +164,17 @@ class DogeMessage():
         )
 
 
-def get_tty_size():
-    # not wow method, should be very api
-    proc = sp.Popen(['stty', 'size'], stdout=sp.PIPE)
-    ret = proc.communicate()[0]
-    height, width = ret.decode().split(' ')
-    return int(height), int(width)
+class TTYHandler(object):
+    def setup(self):
+        self.height, self.width = self.get_tty_size()
+        self.is_tty = sys.stdout.isatty()
+
+    def get_tty_size(self):
+        # not wow method, should be very api
+        proc = sp.Popen(['stty', 'size'], stdout=sp.PIPE)
+        ret = proc.communicate()[0]
+        height, width = ret.decode().split(' ')
+        return int(height), int(width)
 
 
 def clean_len(s):
@@ -185,8 +189,10 @@ def clean_len(s):
 
 
 def main():
-    tty_height, tty_width = get_tty_size()
-    shibe = Doge(tty_height, tty_width)
+    tty = TTYHandler()
+    tty.setup()
+
+    shibe = Doge(tty)
     shibe.setup()
     shibe.generate()
 
