@@ -13,6 +13,8 @@ sometimes based on things from your computer.
 * Randomly placed and colored random strings, complete with broken english.
 * Awesome Shibe in the terminal.
 * Fetching of system data, such as hostname, current user and `$EDITOR`.
+* If you have [lolcat][lolcat], you can do this gem: `while true; do doge | lolcat -a -d 100 -s 100 -p 1; done`
+  (thx [hom3chuk][hom3chuk])
 
 ## Installation
 
@@ -30,3 +32,5 @@ The terminal Shibe was created with hax0r Gimp skills and [img2xterm][i2x]
 
 [doge]: http://knowyourmeme.com/memes/doge
 [i2x]: https://github.com/rossy2401/img2xterm
+[hom3chuk]: https://github.com/hom3chuk
+[lolcat]: https://github.com/busyloop/lolcat
