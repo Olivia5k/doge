@@ -83,6 +83,10 @@ class Doge(object):
         self.real_data.append(uname[1])
         self.real_data.append(uname[4])  # lel
 
+        files = [f for f in os.listdir(os.environ.get('HOME'))]
+        random.shuffle(files)
+        self.real_data.append(files[-1]) # wow, so many file
+
         random.shuffle(self.real_data)
         self.real_data = list(map(str.lower, self.real_data))
 
