@@ -10,6 +10,7 @@ import termios
 import struct
 
 from os.path import dirname, join
+from os import environ
 
 ROOT = dirname(__file__)
 
@@ -41,8 +42,12 @@ class Doge(object):
             sys.exit(1)
 
         # so many line
-        # wow leave one line for new prompt
-        self.lines = ['\n' for x in range(self.tty.height - len(doge) - 1)]
+        ps1 = environ.get('PS1', '')
+        lines = ps1.split('\n')
+        line_count = len(lines)
+
+        self.lines = ['\n' for x in
+                      range(self.tty.height - len(doge) - line_count)]
         self.lines += doge
 
         self.get_real_data()
