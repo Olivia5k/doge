@@ -18,6 +18,24 @@ ROOT = dirname(__file__)
 class Doge(object):
     default_doge = join(ROOT, 'static/doge.txt')
 
+    # wow pls extend this if you see it
+    known_processes = (
+        # wow shells and terminals and etc
+        'zsh', 'urxvt', 'tmux', 'fish', 'ssh', 'mutt',
+
+        # pretty browsers
+        'chromium', 'luakit', 'uzbl-core', 'firefox', 'jumanji',
+
+        # many wms (borrow from djmelik/archey)
+        'awesome', 'beryl', 'blackbox', 'bspwm', 'compiz', 'dwm',
+        'enlightenment', 'herbstluftwm', 'fluxbox', 'fvwm', 'i3', 'icewm',
+        'kwin', 'metacity', 'musca', 'openbox', 'pekwm', 'ratpoison',
+        'scrotwm', 'wmaker', 'wmfs', 'wmii', 'xfwm4', 'xmonad',
+
+        # such services and daemons
+        'mpd', 'nginx', 'dzen2'
+    )
+
     def __init__(self, tty, doge_path=default_doge):
         self.tty = tty
         self.doge_path = doge_path
@@ -90,10 +108,34 @@ class Doge(object):
 
         files = [f for f in os.listdir(os.environ.get('HOME'))]
         random.shuffle(files)
-        self.real_data.append(files[-1]) # wow, so many file
+        self.real_data.append(files[-1])  # wow so many file
+
+        for proc in self.get_processes():
+            if proc in self.known_processes:
+                self.real_data.append(proc)
+                break
 
         random.shuffle(self.real_data)
         self.real_data = list(map(str.lower, self.real_data))
+
+    def get_processes(self):
+        # wow such not psutil
+        # such doge now without dependansy
+        pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
+        random.shuffle(pids)
+
+        procs = set()
+        for pid in pids:
+            with open(join('/proc', pid, 'cmdline'), 'r') as cmd:
+                name = cmd.read()
+                name = name.split(' ')[0]
+                name = name.split("\x00")[0]  # many null byte
+                name = name.split('/')[-1]
+
+                if name:
+                    procs.add(name)
+
+        return procs
 
     def generate(self):
         for line in self.lines:
