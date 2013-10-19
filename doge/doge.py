@@ -121,6 +121,9 @@ class Doge(object):
     def get_processes(self):
         # wow such not psutil
         # such doge now without dependansy
+        if not os.path.isdir('/proc'):
+            return []
+
         pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
         random.shuffle(pids)
 
