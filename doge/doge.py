@@ -126,14 +126,16 @@ class Doge(object):
 
         procs = set()
         for pid in pids:
-            with open(join('/proc', pid, 'cmdline'), 'r') as cmd:
-                name = cmd.read()
-                name = name.split(' ')[0]
-                name = name.split("\x00")[0]  # many null byte
-                name = name.split('/')[-1]
-
-                if name:
-                    procs.add(name)
+            try:
+                with open(join('/proc', pid, 'cmdline'), 'r') as cmd:
+                    name = cmd.read()
+                    name = name.split(' ')[0]
+                    name = name.split("\x00")[0]  # many null byte
+                    name = name.split('/')[-1]
+            except IOError:  # wut gone
+                continue
+            if name:
+                procs.add(name)
 
         return procs
 
