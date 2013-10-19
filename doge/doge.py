@@ -62,7 +62,7 @@ class Doge(object):
         # so many line
         ps1 = environ.get('PS1', '')
         lines = ps1.split('\n')
-        line_count = len(lines)
+        line_count = len(lines) + 1
 
         self.lines = ['\n' for x in
                       range(self.tty.height - len(doge) - line_count)]
