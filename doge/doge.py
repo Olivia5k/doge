@@ -111,7 +111,9 @@ class Doge(object):
         self.real_data.append(uname[4])  # lel
 
         # much functional
-        files = filter(lambda s: s[0] != '.', os.listdir(os.environ.get('HOME')))
+        files = filter(
+            lambda s: s[0] != '.', os.listdir(os.environ.get('HOME'))
+        )
         self.real_data.append(random.choice(list(files)))  # wow so many file
 
         for proc in self.get_processes():
