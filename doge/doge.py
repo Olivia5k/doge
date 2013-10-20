@@ -62,7 +62,7 @@ class Doge(object):
         # so many line
         ps1 = environ.get('PS1', '')
         lines = ps1.split('\n')
-        line_count = len(lines)
+        line_count = len(lines) + 1
 
         self.lines = ['\n' for x in
                       range(self.tty.height - len(doge) - line_count)]
@@ -121,6 +121,9 @@ class Doge(object):
     def get_processes(self):
         # wow such not psutil
         # such doge now without dependansy
+        if not os.path.isdir('/proc'):
+            return []
+
         pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
         random.shuffle(pids)
 
