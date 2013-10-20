@@ -33,7 +33,7 @@ class Doge(object):
         'scrotwm', 'wmaker', 'wmfs', 'wmii', 'xfwm4', 'xmonad',
 
         # such services and daemons
-        'mpd', 'nginx', 'dzen2'
+        'mpd', 'nginx', 'dzen2', 'systemd'
     )
 
     def __init__(self, tty, doge_path=default_doge):
