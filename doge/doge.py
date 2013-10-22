@@ -8,6 +8,7 @@ import random
 import fcntl
 import termios
 import struct
+import subprocess
 
 from os.path import dirname, join
 from os import environ
@@ -125,24 +126,17 @@ class Doge(object):
         self.real_data = list(map(str.lower, self.real_data))
 
     def get_processes(self):
-        # wow such not psutil
-        # such doge now without dependansy
-        if not os.path.isdir('/proc'):
+        try:
+            p = subprocess.Popen(['ps', '-A', '-o', 'comm='],
+                                 stdout=subprocess.PIPE)
+        except OSError:
+            # wow no ps
             return []
 
-        pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
-        random.shuffle(pids)
-
+        output, error = p.communicate()
         procs = set()
-        for pid in pids:
-            try:
-                with open(join('/proc', pid, 'cmdline'), 'r') as cmd:
-                    name = cmd.read()
-                    name = name.split(' ')[0]
-                    name = name.split("\x00")[0]  # many null byte
-                    name = name.split('/')[-1]
-            except IOError:  # wut gone
-                continue
+        for comm in output.split('\n'):
+            name = comm.split('/')[-1]
             if name:
                 procs.add(name)
 
