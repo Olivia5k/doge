@@ -11,12 +11,14 @@ import struct
 
 from os.path import dirname, join
 from os import environ
+import glob
+from random import randrange
 
 ROOT = dirname(__file__)
 
 
 class Doge(object):
-    default_doge = join(ROOT, 'static/doge.txt')
+    default_doge = join(ROOT, 'static/')
 
     # wow pls extend this if you see it
     known_processes = (
@@ -92,7 +94,9 @@ class Doge(object):
             self.lines[x] = '{0}{1}'.format(line, msg)
 
     def load_doge(self):
-        with open(self.doge_path) as f:
+        doges = glob.glob(self.doge_path+"*.txt")
+        dogeindex = randrange(len(doges))
+        with open(doges[dogeindex]) as f:
             return f.readlines()
 
     def get_real_data(self):
