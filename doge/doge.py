@@ -8,7 +8,7 @@ import random
 import fcntl
 import termios
 import struct
-import subprocess
+import subprocess as sp
 
 from os.path import dirname, join
 from os import environ
@@ -130,21 +130,23 @@ class Doge(object):
         self.real_data = list(map(str.lower, self.real_data))
 
     def get_processes(self):
-        try:
-            p = subprocess.Popen(['ps', '-A', '-o', 'comm='],
-                                 stdout=subprocess.PIPE)
-        except OSError:
-            # wow no ps
-            return []
-
-        output, error = p.communicate()
         procs = set()
-        for comm in output.split('\n'):
-            name = comm.split('/')[-1]
-            if name:
-                procs.add(name)
 
-        return procs
+        try:
+            p = sp.Popen(['ps', '-A', '-o', 'comm='], stdout=sp.PIPE)
+            output, error = p.communicate()
+
+            if sys.version_info > (3, 0):
+                output = output.decode('utf-8')
+
+            for comm in output.split('\n'):
+                name = comm.split('/')[-1]
+                if name:
+                    procs.add(name)
+
+        finally:
+            # wow no ps or many error
+            return procs
 
     def generate(self):
         for line in self.lines:
