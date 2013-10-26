@@ -22,7 +22,7 @@ class Doge(object):
     # wow pls extend this if you see it
     known_processes = (
         # wow shells and terminals and etc
-        'zsh', 'urxvt', 'tmux', 'fish', 'ssh', 'mutt',
+        'zsh', 'urxvt', 'tmux', 'fish', 'ssh', 'mutt', 'screen', 'mosh-client',
 
         # pretty browsers
         'chromium', 'luakit', 'uzbl-core', 'firefox', 'jumanji',
@@ -32,9 +32,10 @@ class Doge(object):
         'enlightenment', 'herbstluftwm', 'fluxbox', 'fvwm', 'i3', 'icewm',
         'kwin', 'metacity', 'musca', 'openbox', 'pekwm', 'ratpoison',
         'scrotwm', 'wmaker', 'wmfs', 'wmii', 'xfwm4', 'xmonad',
+        'gnome-shell', 'devilspie2',
 
         # such services and daemons
-        'mpd', 'nginx', 'dzen2', 'systemd'
+        'mpd', 'nginx', 'dzen2', 'systemd', 'lighttpd', 'prosody',
     )
 
     def __init__(self, tty, doge_path=default_doge):
