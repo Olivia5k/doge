@@ -147,7 +147,9 @@ class Doge(object):
 
         finally:
             # wow no ps or many error
-            return procs
+            proc_list = list(procs)
+            random.shuffle(proc_list)
+            return proc_list
 
     def generate(self):
         for line in self.lines:
