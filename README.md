@@ -4,7 +4,7 @@ doge
 ![wow screenshot](http://i.imgur.com/kBeMBRo.png)
 
 
-**doge** is a simple motd script based on the slightly retarded but very funny
+**doge** is a simple motd script based on the slightly stupid but very funny
 [doge meme][doge]. It prints random grammatically incorrect statements that are
 sometimes based on things from your computer.
 
