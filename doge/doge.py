@@ -23,10 +23,11 @@ class Doge(object):
     known_processes = (
         # wow shells and terminals and etc
         'zsh', 'urxvt', 'tmux', 'fish', 'ssh', 'mutt', 'screen', 'mosh-client',
+        'Terminal',
 
         # pretty browsers
         'chromium', 'luakit', 'uzbl-core', 'firefox', 'jumanji', 'chrome',
-        'thunderbird',
+        'thunderbird', 'Safari', 'Google Chrome',
 
         # many wms (borrow from djmelik/archey)
         'awesome', 'beryl', 'blackbox', 'bspwm', 'compiz', 'dwm',
@@ -37,14 +38,20 @@ class Doge(object):
 
         # such services and daemons
         'mpd', 'nginx', 'dzen2', 'systemd', 'lighttpd', 'prosody',
-        'mongod', 'postgres', 'mysqld', 'redis-server', 'php-fpm',
-        'sendmail', 'irssi', 'screen', 'neo4j', 'httpd',
+        'mongod', 'postgres', 'mysqld', 'redis-server', 'mongod', 'php-fpm',
+        'sendmail', 'irssi', 'screen', 'neo4j', 'httpd', 'Flux', 'Dropbox',
+        'VirtualBox', 'VirtualBoxVM',
         
         # programming languages
-        'ruby', 'python', 'java', 'php',
+        'ruby', 'python', 'java', 'php', 'node',
         
         # so editors
         'emacs', 'vim', 'nano', 'gedit', 'sublime_text',
+        'subl' /* sublime bin on osx */,
+        'other',
+        
+        # very talk
+        'HipChat', 'Mail',
 
         # shells
         'sh', 'bash', 'zsh'
