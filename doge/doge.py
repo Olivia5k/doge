@@ -36,6 +36,13 @@ class Doge(object):
 
         # such services and daemons
         'mpd', 'nginx', 'dzen2', 'systemd', 'lighttpd', 'prosody',
+        'mongod', 'postgres', 'mysqld', 'redis-server',
+        
+        # programming languages
+        'ruby', 'python', 'java',
+        
+        # shells
+        'sh', 'bash', 'zsh'
     )
 
     def __init__(self, tty, doge_path=default_doge):
