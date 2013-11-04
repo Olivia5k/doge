@@ -25,7 +25,8 @@ class Doge(object):
         'zsh', 'urxvt', 'tmux', 'fish', 'ssh', 'mutt', 'screen', 'mosh-client',
 
         # pretty browsers
-        'chromium', 'luakit', 'uzbl-core', 'firefox', 'jumanji',
+        'chromium', 'luakit', 'uzbl-core', 'firefox', 'jumanji', 'chrome',
+        'thunderbird',
 
         # many wms (borrow from djmelik/archey)
         'awesome', 'beryl', 'blackbox', 'bspwm', 'compiz', 'dwm',
@@ -36,11 +37,15 @@ class Doge(object):
 
         # such services and daemons
         'mpd', 'nginx', 'dzen2', 'systemd', 'lighttpd', 'prosody',
-        'mongod', 'postgres', 'mysqld', 'redis-server',
+        'mongod', 'postgres', 'mysqld', 'redis-server', 'php-fpm',
+        'sendmail', 'irssi', 'screen', 'neo4j', 'httpd',
         
         # programming languages
-        'ruby', 'python', 'java',
+        'ruby', 'python', 'java', 'php',
         
+        # so editors
+        'emacs', 'vim', 'nano', 'gedit', 'sublime_text',
+
         # shells
         'sh', 'bash', 'zsh'
     )
@@ -165,17 +170,19 @@ class Doge(object):
 class DogeMessage(object):
     prefixes = [
         'wow', 'such', 'very', 'so much', 'many', 'lol', 'beautiful',
-        'all the', 'the', 'most', 'very much', 'pretty'
+        'all the', 'the', 'most', 'very much', 'pretty', 'so'
     ]
 
     words = [
         'computer', 'hax0r', 'code', 'data', 'internet', 'server',
         'hacker', 'terminal', 'doge', 'shibe', 'program', 'free software',
-        'web scale', 'monads', 'git', 'daemon'
+        'web scale', 'monads', 'git', 'daemon', 'cloud computing', 'real-time',
+        'cloud', 'loop', 'big data', 'synergy', 'agile', 'viral', 'ROI',
+        'innovative'
     ]
 
     suffixes = [
-        'wow', 'lol', 'hax'
+        'wow', 'lol', 'hax', 'plz'
     ]
 
     def __init__(self, tty, occupied, word=None):
