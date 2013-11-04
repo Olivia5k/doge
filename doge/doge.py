@@ -57,8 +57,6 @@ class Doge(object):
         if self.tty.width < max_doge:
             sys.stderr.write('wow, such small terminal\n')
             sys.stderr.write('no doge under {0} column\n'.format(max_doge))
-            sys.stderr.flush()
-
             sys.exit(1)
 
         # so many line
