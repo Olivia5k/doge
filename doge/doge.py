@@ -39,10 +39,10 @@ class Doge(object):
         'mpd', 'nginx', 'dzen2', 'systemd', 'lighttpd', 'prosody',
         'mongod', 'postgres', 'mysqld', 'redis-server', 'php-fpm',
         'sendmail', 'irssi', 'screen', 'neo4j', 'httpd',
-        
+
         # programming languages
         'ruby', 'python', 'java', 'php',
-        
+
         # so editors
         'emacs', 'vim', 'nano', 'gedit', 'sublime_text',
 
