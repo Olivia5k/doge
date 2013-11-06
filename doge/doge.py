@@ -22,7 +22,7 @@ class Doge(object):
     # wow pls extend this if you see it
     known_processes = (
         # wow shells and terminals and etc
-        'zsh', 'urxvt', 'tmux', 'fish', 'ssh', 'mutt', 'screen', 'mosh-client',
+        'urxvt', 'tmux', 'fish', 'ssh', 'mutt', 'screen', 'mosh-client',
         'Terminal',
 
         # pretty browsers
