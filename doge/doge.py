@@ -40,10 +40,11 @@ class Doge(object):
         'mpd', 'nginx', 'dzen2', 'systemd', 'lighttpd', 'prosody',
         'mongod', 'postgres', 'mysqld', 'redis-server', 'php-fpm',
         'sendmail', 'irssi', 'screen', 'neo4j', 'httpd', 'Flux', 'Dropbox',
-        'VirtualBox', 'VirtualBoxVM',
+        'VirtualBox', 'VirtualBoxVM', 'tmux', 'xflux', 'weechat', 'xen',
+        'apache', 'sshd',
 
         # programming languages
-        'ruby', 'python', 'java', 'php', 'node'
+        'ruby', 'python', 'java', 'php', 'node', 'erlang',
 
         # so editors
         'emacs', 'vim', 'nano', 'gedit', 'sublime_text', 'subl', 'other',
@@ -175,7 +176,7 @@ class Doge(object):
 class DogeMessage(object):
     prefixes = [
         'wow', 'such', 'very', 'so much', 'many', 'lol', 'beautiful',
-        'all the', 'the', 'most', 'very much', 'pretty', 'so'
+        'all the', 'the', 'most', 'very much', 'pretty', 'so', 'lots'
     ]
 
     words = [
@@ -183,7 +184,7 @@ class DogeMessage(object):
         'hacker', 'terminal', 'doge', 'shibe', 'program', 'free software',
         'web scale', 'monads', 'git', 'daemon', 'cloud computing', 'real-time',
         'cloud', 'loop', 'big data', 'synergy', 'agile', 'viral', 'ROI',
-        'innovative'
+        'innovative', 'cloud scale', 'pretty', 'uptime'
     ]
 
     suffixes = [
