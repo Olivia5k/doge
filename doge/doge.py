@@ -183,7 +183,7 @@ class DogeMessage(object):
         'computer', 'hax0r', 'code', 'data', 'internet', 'server',
         'hacker', 'terminal', 'doge', 'shibe', 'program', 'free software',
         'web scale', 'monads', 'git', 'daemon', 'cloud computing', 'real-time',
-        'cloud', 'loop', 'big data', 'synergy', 'agile', 'viral', 'ROI',
+        'cloud', 'loop', 'big data', 'synergy', 'agile', 'viral', 'roi',
         'innovative', 'cloud scale', 'pretty', 'uptime'
     ]
 
