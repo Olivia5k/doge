@@ -91,7 +91,7 @@ class Doge(object):
 
     def apply_text(self):
         linelen = len(self.lines)
-        affected = random.sample(range(linelen), int(linelen / 4))
+        affected = random.sample(range(linelen), int(linelen / 3.5))
 
         real_targets = self.real_data
         # wow only sample if more than need
