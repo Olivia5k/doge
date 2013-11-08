@@ -105,6 +105,8 @@ class Doge(object):
             word = None
             if x in real_targets and random.choice(range(2)) == 0:
                 word = self.real_data.pop()
+            elif x in affected[-2:]:
+                word = 'wow'
 
             msg = DogeMessage(self.tty, clean_len(line), word=word)
             self.lines[x] = '{0}{1}'.format(line, msg)
@@ -188,7 +190,7 @@ class DogeMessage(object):
     ]
 
     suffixes = [
-        'wow', 'lol', 'hax', 'plz'
+        'wow', 'lol', 'hax', 'plz', 'lvl=100'
     ]
 
     def __init__(self, tty, occupied, word=None):
@@ -223,13 +225,17 @@ class DogeMessage(object):
         self.message = '{0}{1}'.format(space, self.message)
 
     def generate(self):
-        if not self.word:
-            self.word = random.choice(self.words)
+        if self.word == 'wow':
+            # wow standalone wow
+            msg = self.word
+        else:
+            if not self.word:
+                self.word = random.choice(self.words)
 
-        msg = '{0} {1}'.format(random.choice(self.prefixes), self.word)
+            msg = '{0} {1}'.format(random.choice(self.prefixes), self.word)
 
-        if random.choice(range(15)) == 0:
-            msg += ' {0}'.format(random.choice(self.suffixes))
+            if random.choice(range(15)) == 0:
+                msg += ' {0}'.format(random.choice(self.suffixes))
 
         self.orig_message = msg
         self.message = msg
