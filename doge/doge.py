@@ -186,7 +186,8 @@ class DogeMessage(object):
         'hacker', 'terminal', 'doge', 'shibe', 'program', 'free software',
         'web scale', 'monads', 'git', 'daemon', 'cloud computing', 'real-time',
         'cloud', 'loop', 'big data', 'synergy', 'agile', 'viral', 'roi',
-        'innovative', 'cloud scale', 'pretty', 'uptime'
+        'innovative', 'cloud scale', 'pretty', 'uptime', 'thread safe',
+        'POSIX', 'segfault'
     ]
 
     suffixes = [
