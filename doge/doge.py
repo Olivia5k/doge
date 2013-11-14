@@ -44,7 +44,7 @@ class Doge(object):
         'apache', 'sshd',
 
         # programming languages
-        'ruby', 'python', 'java', 'php', 'node', 'erlang',
+        'ruby', 'python', 'java', 'php', 'node', 'erlang', 'perl',
 
         # so editors
         'emacs', 'vim', 'nano', 'gedit', 'sublime_text', 'subl', 'other',
