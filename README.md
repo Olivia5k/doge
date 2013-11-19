@@ -8,6 +8,9 @@ doge
 [doge meme][doge]. It prints random grammatically incorrect statements that are
 sometimes based on things from your computer.
 
+For more information about getting a setup like the one in the screenshot, see
+[this dotfiles repo][shameless].
+
 ## Features
 
 * Randomly placed and colored random strings, complete with broken english.
@@ -40,3 +43,4 @@ The terminal Shibe was created with hax0r Gimp skills and [img2xterm][i2x].
 [i2x]: https://github.com/rossy2401/img2xterm
 [hom3chuk]: https://github.com/hom3chuk
 [lolcat]: https://github.com/busyloop/lolcat
+[shameless]: https://github.com/thiderman/dotfiles
