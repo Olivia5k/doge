@@ -2,7 +2,7 @@
 KNOWN_PROCESSES = (
     # wow shells and terminals and etc
     'urxvt', 'tmux', 'fish', 'ssh', 'mutt', 'screen', 'mosh-client',
-    'Terminal', 'sh', 'bash', 'zsh'
+    'Terminal', 'sh', 'bash', 'zsh', 'tcsh', 'csh',
 
     # pretty browsers
     'chromium', 'luakit', 'uzbl-core', 'firefox', 'jumanji', 'chrome',
@@ -30,6 +30,9 @@ KNOWN_PROCESSES = (
 
     # very talk
     'HipChat', 'Mail',
+    
+    # wow cluster
+    'pbs_sched', 'pbs_mom', 'mpirun', 'sgeexecd', 'slurmd',
 )
 
 PREFIXES = [
