@@ -53,7 +53,7 @@ class Doge(object):
         'HipChat', 'Mail',
 
         # shells
-        'sh', 'bash', 'zsh',
+        'sh', 'bash', 'zsh', 'csh', 'tcsh',
         
         # many clusters
         'pbs_sched', 'pbs_mom', 'mpirun', 'sgeexecd', 'slurmd'
@@ -190,7 +190,7 @@ class DogeMessage(object):
         'web scale', 'monads', 'git', 'daemon', 'cloud computing', 'real-time',
         'cloud', 'loop', 'big data', 'synergy', 'agile', 'viral', 'roi',
         'innovative', 'cloud scale', 'pretty', 'uptime', 'thread safe',
-        'POSIX', 'segfault', 'magic quadrant'
+        'POSIX', 'segfault', 'magic quadrant', 'distribute', 'fault tolerant'
     ]
 
     suffixes = [
