@@ -178,16 +178,14 @@ class Doge(object):
 class DogeMessage(object):
     prefixes = [
         'wow', 'such', 'very', 'so much', 'many', 'lol', 'beautiful',
-        'all the', 'the', 'most', 'very much', 'pretty', 'so', 'lots'
+        'all the', 'the', 'most', 'very much', 'pretty', 'so',
     ]
 
     words = [
         'computer', 'hax0r', 'code', 'data', 'internet', 'server',
         'hacker', 'terminal', 'doge', 'shibe', 'program', 'free software',
-        'web scale', 'monads', 'git', 'daemon', 'cloud computing', 'real-time',
-        'cloud', 'loop', 'big data', 'synergy', 'agile', 'viral', 'roi',
-        'innovative', 'cloud scale', 'pretty', 'uptime', 'thread safe',
-        'POSIX', 'segfault'
+        'web scale', 'monads', 'git', 'daemon', 'loop', 'pretty', 'uptime',
+        'thread safe', 'posix',
     ]
 
     suffixes = [
