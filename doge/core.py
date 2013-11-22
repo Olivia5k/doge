@@ -28,42 +28,36 @@ class Doge(object):
         self.real_data = []
 
     def setup(self):
-        """
-        Set doge up:
-
-        1) Load the ASCII doge if tty allows it
-        2) Check if terminal is wide enough, die if it isn't
-        3) Setup lines to be printed; subtract length of ASCII doge from
-           total terminal height. Originally, all lines are linebreaks
-        4) Run get_real_data() to grab some words from the current system
-        5) Run apply_text() to add words above and to the right of doge
-
-        """
-
         if self.tty.is_tty:
-            # is tty, wow get doge
+            # stdout is a tty, load Shibe and calculate how wide he is
             doge = self.load_doge()
             max_doge = max(map(clean_len, doge)) + 15
         else:
-            # no tty, such no doge
+            # stdout is being piped and we should not load Shibe
             doge = []
             max_doge = 15
 
         if self.tty.width < max_doge:
+            # Shibe won't fit, so abort.
             sys.stderr.write('wow, such small terminal\n')
             sys.stderr.write('no doge under {0} column\n'.format(max_doge))
             sys.exit(1)
 
-        # so many line
-        ps1 = environ.get('PS1', '')
-        lines = ps1.split('\n')
-        line_count = len(lines) + 1
+        # Check for prompt height so that we can fill the screen minus how high
+        # the prompt will be when done.
+        prompt = environ.get('PS1', '').split('\n')
+        line_count = len(prompt) + 1
 
-        self.lines = ['\n' for x in
-                      range(self.tty.height - len(doge) - line_count)]
+        # Create a list filled with empty lines and Shibe at the bottom.
+        fill = range(self.tty.height - len(doge) - line_count)
+        self.lines = ['\n' for x in fill]
         self.lines += doge
 
+        # Get some system data
+        # TODO: Refactor to be stateless
         self.get_real_data()
+
+        # Apply the text around Shibe
         self.apply_text()
 
     def apply_text(self):
@@ -71,6 +65,10 @@ class Doge(object):
         Apply text around doge
 
         """
+
+        # TODO: Refactor the shuffling so that it is not true random but rather
+        # a shuffled start that is iterated over. This should remove at least
+        # some of the repetition that happens just because random is random.
 
         # Calculate a random sampling of lines that are to have text applied
         # onto them. Return value is a shuffled list of line index integers.
@@ -184,7 +182,6 @@ class Doge(object):
             return proc_list
 
     def print_doge(self):
-        # TODO: Rename to print_doge()
         for line in self.lines:
             sys.stdout.write(line)
         sys.stdout.flush()
