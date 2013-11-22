@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='doge',
-    version='2.0.0',
+    version='2.1.0',
     url='https://github.com/thiderman/doge',
     author='Lowe Thiderman',
     author_email='lowe.thiderman@gmail.com',
