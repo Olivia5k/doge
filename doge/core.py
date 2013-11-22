@@ -183,7 +183,7 @@ class Doge(object):
             random.shuffle(proc_list)
             return proc_list
 
-    def generate(self):
+    def print_doge(self):
         # TODO: Rename to print_doge()
         for line in self.lines:
             sys.stdout.write(line)
@@ -285,7 +285,7 @@ def main():
 
     shibe = Doge(tty)
     shibe.setup()
-    shibe.generate()
+    shibe.print_doge()
 
 
 # wow very main
