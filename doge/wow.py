@@ -1,4 +1,11 @@
-# wow pls extend this if you see it
+"""
+Words and static data
+
+Please extend this file with more lvl=100 shibe wow.
+
+"""
+
+
 KNOWN_PROCESSES = (
     # wow shells and terminals and etc
     'urxvt', 'tmux', 'fish', 'ssh', 'mutt', 'screen', 'mosh-client',
@@ -35,23 +42,30 @@ KNOWN_PROCESSES = (
     'pbs_sched', 'pbs_mom', 'mpirun', 'sgeexecd', 'slurmd',
 )
 
-PREFIXES = [
+PREFIXES = (
     'wow', 'such', 'very', 'so much', 'many', 'lol', 'beautiful',
     'all the', 'the', 'most', 'very much', 'pretty', 'so',
-]
+)
 
-WORDS = [
+# Please keep in mind that this particular shibe is a terminal hax0r shibe,
+# and the words added should be in that domain
+WORDS = (
     'computer', 'hax0r', 'code', 'data', 'internet', 'server',
     'hacker', 'terminal', 'doge', 'shibe', 'program', 'free software',
     'web scale', 'monads', 'git', 'daemon', 'loop', 'pretty', 'uptime',
     'thread safe', 'posix',
-]
+)
 
-SUFFIXES = [
+SUFFIXES = (
     'wow', 'lol', 'hax', 'plz', 'lvl=100'
-]
+)
 
-# wow remove darkest unread color
+# A subset of the 255 color cube with the darkest colors removed. This is
+# suited for use on dark terminals. Lighter colors are still present so some
+# colors might be semi-unreadabe on lighter backgrounds.
+#
+# If you see this and use a light terminal, a pull request with a set that
+# works well on a light terminal would be awesome.
 COLORS = (
     23, 24, 25, 26, 27, 29, 30, 31, 32, 33, 35, 36, 37, 38, 39, 41, 42, 43,
     44, 45, 47, 48, 49, 50, 51, 58, 59, 63, 64, 65, 66, 67, 68, 69, 70, 71,

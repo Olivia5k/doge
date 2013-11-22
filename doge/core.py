@@ -11,7 +11,7 @@ import struct
 import subprocess as sp
 
 from os.path import dirname, join
-from os import environ
+from os import environ, listdir
 
 from doge import wow
 
@@ -28,6 +28,18 @@ class Doge(object):
         self.real_data = []
 
     def setup(self):
+        """
+        Set doge up:
+
+        1) Load the ASCII doge if tty allows it
+        2) Check if terminal is wide enough, die if it isn't
+        3) Setup lines to be printed; subtract length of ASCII doge from
+           total terminal height. Originally, all lines are linebreaks
+        4) Run get_real_data() to grab some words from the current system
+        5) Run apply_text() to add words above and to the right of doge
+
+        """
+
         if self.tty.is_tty:
             # is tty, wow get doge
             doge = self.load_doge()
@@ -55,11 +67,22 @@ class Doge(object):
         self.apply_text()
 
     def apply_text(self):
+        """
+        Apply text around doge
+
+        """
+
+        # Calculate a random sampling of lines that are to have text applied
+        # onto them. Return value is a shuffled list of line index integers.
         linelen = len(self.lines)
         affected = random.sample(range(linelen), int(linelen / 3.5))
 
+        # Choose what lines to apply real system data to. Check if a sampling
+        # is possible, since random.sample() will crash if you ask for more
+        # candidates than are available in the list. This makes doge crash if
+        # you have a small selection of affected lines but a lot of system
+        # data.
         real_targets = self.real_data
-        # wow only sample if more than need
         if len(affected) > len(real_targets):
             real_targets = random.sample(affected, len(self.real_data))
 
@@ -68,19 +91,38 @@ class Doge(object):
             line = re.sub('\n', ' ', line)
 
             word = None
+
+            # Use real data, but apply some jittering to add to the randomness.
             if x in real_targets and random.choice(range(2)) == 0:
                 word = self.real_data.pop()
+
+            # If not, then add a standalone wow. This will be jittered by the
+            # fact that the above condition must fail.
             elif x in affected[-2:]:
                 word = 'wow'
 
+            # Generate a new DogeMessage, possibly base on a word.
+            # TODO: Refactor to not use clean_len()
             msg = DogeMessage(self.tty, clean_len(line), word=word)
             self.lines[x] = '{0}{1}'.format(line, msg)
 
     def load_doge(self):
+        """
+        Return pretty ASCII Shibe.
+
+        wow
+
+        """
+
         with open(self.doge_path) as f:
             return f.readlines()
 
     def get_real_data(self):
+        """
+        Grab actual data from the system
+
+        """
+
         username = os.environ.get('USER')
         if username:
             self.real_data.append(username)
@@ -90,33 +132,42 @@ class Doge(object):
             editor = editor.split('/')[-1]
             self.real_data.append(editor)
 
+        # OS, hostname and... architechture (because lel)
         uname = os.uname()
         self.real_data.append(uname[0])
         self.real_data.append(uname[1])
-        self.real_data.append(uname[4])  # lel
+        self.real_data.append(uname[4])
 
-        # much functional
-        files = filter(
-            lambda s: s[0] != '.', os.listdir(os.environ.get('HOME'))
+        # Grab actual files from $HOME.
+        # TODO: Re-introduce dotfiles.
+        files = list(
+            filter(lambda s: s[0] != '.', listdir(os.environ.get('HOME')))
         )
-        files = list(files)
 
-        # wow so many file
+        # If there actually are files in $HOME, grab one of them randomly.
         if files:
             self.real_data.append(random.choice(files))
 
+        # Scan if any of the known processess are running.
         for proc in self.get_processes():
             if proc in wow.KNOWN_PROCESSES:
                 self.real_data.append(proc)
                 break
 
+        # Shuffle all the data, lowercase it, and set it.
         random.shuffle(self.real_data)
         self.real_data = list(map(str.lower, self.real_data))
 
     def get_processes(self):
+        """
+        Grab a shuffled list of all currently running process names
+
+        """
+
         procs = set()
 
         try:
+            # POSIX ps, so it should work in most environments where doge would
             p = sp.Popen(['ps', '-A', '-o', 'comm='], stdout=sp.PIPE)
             output, error = p.communicate()
 
@@ -129,19 +180,27 @@ class Doge(object):
                     procs.add(name)
 
         finally:
-            # wow no ps or many error
+            # Either it executed properly or no ps was found.
             proc_list = list(procs)
             random.shuffle(proc_list)
             return proc_list
 
     def generate(self):
+        # TODO: Rename to print_doge()
         for line in self.lines:
             sys.stdout.write(line)
         sys.stdout.flush()
 
 
 class DogeMessage(object):
+    """
+    A randomly placed and randomly colored message
+
+    """
+
     def __init__(self, tty, occupied, word=None):
+        # TODO: Refactor so that occupied is the actual line and not only the
+        # length of it. Also apply it in the beginning of the message.
         self.tty = tty
         self.occupied = occupied
         self.word = word
@@ -149,51 +208,66 @@ class DogeMessage(object):
         self.message = ""
 
     def __str__(self):
-        # such lazy fallback
+        # If no message is set for any reason, be lazy and generate one.
         if not self.message:
             self.generate()
             self.colorize()
             self.displace()
 
-        # wow need line end
+        # Line ends are pretty cool guys.
         return self.message + '\n'
 
     def __repr__(self):
         return self.__str__()
 
     def displace(self):
+        """
+        Add a randomly wide spacing to the left of the message
+
+        Considers already existing data on the lines
+
+        """
+
+        # Calculate the maximum possible spacer
         interval = self.tty.width - len(self.orig_message) - self.occupied
 
-        # wow don't fit
+        # The interval is too low, so the message can not be shown. Set the
+        # message to be the empty string, effectively disabling this row.
         if interval < 1:
             self.message = ''
             return
 
+        # Apply spacing
         space = ' ' * random.choice(range(interval))
         self.message = '{0}{1}'.format(space, self.message)
 
     def generate(self):
         if self.word == 'wow':
-            # wow standalone wow
+            # Standalone wow. Don't apply any prefixes or suffixes.
             msg = self.word
         else:
             if not self.word:
+                # No word has been set, so grab one randomly from the wordlist.
                 self.word = random.choice(wow.WORDS)
 
+            # Add a prefix.
             msg = '{0} {1}'.format(random.choice(wow.PREFIXES), self.word)
 
+            # Seldomly add a suffix as well.
             if random.choice(range(15)) == 0:
                 msg += ' {0}'.format(random.choice(wow.SUFFIXES))
 
+        # Store the original uncolorized/displaced message for length
+        # calculations.
         self.orig_message = msg
         self.message = msg
 
     def colorize(self):
-        # wow piped
+        # If stdout is a pipe, don't colorize anything.
         if not self.tty.is_tty:
             return
 
-        # very ansi code wow
+        # Apply pretty ANSI color coding.
         self.message = '[1m[38;5;{0}m{1}[39m[0m'.format(
             random.choice(wow.COLORS), self.message
         )
@@ -205,8 +279,16 @@ class TTYHandler(object):
         self.is_tty = sys.stdout.isatty()
 
     def get_tty_size(self):
-        # http://stackoverflow.com/questions/566746
-        # lol no idea what actually happen
+        """
+        Get the current terminal size without using a subprocess
+
+        http://stackoverflow.com/questions/566746
+        I have no clue what-so-fucking ever over how this works or why it
+        returns the size of the terminal in both cells and pixels. But hey, it
+        does.
+
+        """
+
         h, w, hp, wp = struct.unpack(
             'HHHH',
             fcntl.ioctl(
@@ -217,8 +299,12 @@ class TTYHandler(object):
 
 
 def clean_len(s):
-    # wow encoding trouble
-    # such 2013
+    """
+    Calculate the length of a string without it's color codes
+
+    """
+
+    # Encoding trouble is so 2013
     if sys.version_info < (3, 0):
         s = s.decode('utf-8')
 
@@ -234,6 +320,7 @@ def main():
     shibe = Doge(tty)
     shibe.setup()
     shibe.generate()
+
 
 # wow very main
 if __name__ == "__main__":
