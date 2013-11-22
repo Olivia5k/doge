@@ -135,16 +135,11 @@ class Doge(object):
         self.real_data.append(uname[4])
 
         # Grab actual files from $HOME.
-        # TODO: Re-introduce dotfiles.
-        files = list(
-            filter(lambda s: s[0] != '.', listdir(os.environ.get('HOME')))
-        )
-
-        # If there actually are files in $HOME, grab one of them randomly.
+        files = listdir(os.environ.get('HOME'))
         if files:
             self.real_data.append(random.choice(files))
 
-        # Scan if any of the known processess are running.
+        # Scan if any of the known processes are running.
         for proc in self.get_processes():
             if proc in wow.KNOWN_PROCESSES:
                 self.real_data.append(proc)
