@@ -101,10 +101,8 @@ class Doge(object):
             elif x in affected[-2:]:
                 word = 'wow'
 
-            # Generate a new DogeMessage, possibly base on a word.
-            # TODO: Refactor to not use clean_len()
-            msg = DogeMessage(self.tty, clean_len(line), word=word)
-            self.lines[x] = '{0}{1}'.format(line, msg)
+            # Generate a new DogeMessage, possibly based on a word.
+            self.lines[x] = DogeMessage(self.tty, line, word=word).generate()
 
     def load_doge(self):
         """
@@ -199,47 +197,9 @@ class DogeMessage(object):
     """
 
     def __init__(self, tty, occupied, word=None):
-        # TODO: Refactor so that occupied is the actual line and not only the
-        # length of it. Also apply it in the beginning of the message.
         self.tty = tty
         self.occupied = occupied
         self.word = word
-
-        self.message = ""
-
-    def __str__(self):
-        # If no message is set for any reason, be lazy and generate one.
-        if not self.message:
-            self.generate()
-            self.colorize()
-            self.displace()
-
-        # Line ends are pretty cool guys.
-        return self.message + '\n'
-
-    def __repr__(self):
-        return self.__str__()
-
-    def displace(self):
-        """
-        Add a randomly wide spacing to the left of the message
-
-        Considers already existing data on the lines
-
-        """
-
-        # Calculate the maximum possible spacer
-        interval = self.tty.width - len(self.orig_message) - self.occupied
-
-        # The interval is too low, so the message can not be shown. Set the
-        # message to be the empty string, effectively disabling this row.
-        if interval < 1:
-            self.message = ''
-            return
-
-        # Apply spacing
-        space = ' ' * random.choice(range(interval))
-        self.message = '{0}{1}'.format(space, self.message)
 
     def generate(self):
         if self.word == 'wow':
@@ -257,20 +217,26 @@ class DogeMessage(object):
             if random.choice(range(15)) == 0:
                 msg += ' {0}'.format(random.choice(wow.SUFFIXES))
 
-        # Store the original uncolorized/displaced message for length
-        # calculations.
-        self.orig_message = msg
-        self.message = msg
+        # Calculate the maximum possible spacer
+        interval = self.tty.width - len(msg) - clean_len(self.occupied)
 
-    def colorize(self):
-        # If stdout is a pipe, don't colorize anything.
-        if not self.tty.is_tty:
-            return
+        if interval < 1:
+            # The interval is too low, so the message can not be shown without
+            # spilling over to the subsequent line, borking the setup.
+            # Return an empty line, effectively disabling this row.
+            return '\n'
 
-        # Apply pretty ANSI color coding.
-        self.message = '[1m[38;5;{0}m{1}[39m[0m'.format(
-            random.choice(wow.COLORS), self.message
-        )
+        # Apply spacing
+        msg = '{0}{1}'.format(' ' * random.choice(range(interval)), msg)
+
+        if self.tty.is_tty:
+            # Apply pretty ANSI color coding.
+            msg = '[1m[38;5;{0}m{1}[39m[0m'.format(
+                random.choice(wow.COLORS), msg
+            )
+
+        # Line ends are pretty cool guys, add one of those.
+        return '{0}{1}\n'.format(self.occupied, msg)
 
 
 class TTYHandler(object):
