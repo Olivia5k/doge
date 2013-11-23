@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import datetime
 import os
 import sys
 import re
@@ -26,8 +27,17 @@ class Doge(object):
         self.doge_path = doge_path
 
         self.real_data = []
+        self.seasonal_words = tuple()
+
+        # If owna wants his doge instead, let that be. All doges are wow.
+        self._no_override_doge = False
+        if doge_path != self.default_doge:
+            self._no_override_doge = True
 
     def setup(self):
+        # Setup seasonal data
+        self.setup_seasonal()
+
         if self.tty.is_tty:
             # stdout is a tty, load Shibe and calculate how wide he is
             doge = self.load_doge()
@@ -59,6 +69,43 @@ class Doge(object):
 
         # Apply the text around Shibe
         self.apply_text()
+
+    def setup_seasonal(self):
+        """
+        Check if there's some seasonal holiday going on, setup appropriate
+        Shibe picture and load holiday words.
+
+        Note: if there are two or more holidays defined for a certain date,
+        the first one takes precedence.
+
+        """
+        
+        now = datetime.datetime.now()
+        current_year = now.year
+
+        for ival in wow.SEASONS:
+            start, end = ival
+
+            start_dt = datetime.datetime(current_year, start[0], start[1])
+
+            # Be sane if the holiday season spans over New Year's day.
+            end_dt = datetime.datetime(
+                current_year + (start[0] > end[0] and 1 or 0), end[0], end[1])
+
+            if start_dt <= now <= end_dt:
+                # Wow, much holiday!
+                holiday_setup = wow.SEASONS[ival]
+
+                if not self._no_override_doge:
+                    # Get the picture, if defined.
+                    try:
+                        self.doge_path = join(ROOT, holiday_setup['pic'])
+                    except KeyError:
+                        pass
+
+                # Same for text.
+                self.seasonal_words = holiday_setup.get('words', tuple())
+                break
 
     def apply_text(self):
         """
@@ -100,7 +147,9 @@ class Doge(object):
                 word = 'wow'
 
             # Generate a new DogeMessage, possibly based on a word.
-            self.lines[x] = DogeMessage(self.tty, line, word=word).generate()
+            self.lines[x] = DogeMessage(
+                self.tty, line, word=word,
+                seasonal_words=self.seasonal_words).generate()
 
     def load_doge(self):
         """
@@ -188,10 +237,11 @@ class DogeMessage(object):
 
     """
 
-    def __init__(self, tty, occupied, word=None):
+    def __init__(self, tty, occupied, word=None, seasonal_words=tuple()):
         self.tty = tty
         self.occupied = occupied
         self.word = word
+        self.seasonal_words = seasonal_words
 
     def generate(self):
         if self.word == 'wow':
@@ -200,7 +250,7 @@ class DogeMessage(object):
         else:
             if not self.word:
                 # No word has been set, so grab one randomly from the wordlist.
-                self.word = random.choice(wow.WORDS)
+                self.word = random.choice(self.seasonal_words + wow.WORDS)
 
             # Add a prefix.
             msg = '{0} {1}'.format(random.choice(wow.PREFIXES), self.word)
