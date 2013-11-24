@@ -82,7 +82,7 @@ class Doge(object):
         the first one takes precedence.
 
         """
-        
+
         now = datetime.datetime.now()
         current_year = now.year
 
@@ -329,8 +329,12 @@ class TTYHandler(object):
 
         def _ioctl_call(fd):
             try:
-                return struct.unpack('hh',
-                    fcntl.ioctl(fd, termios.TIOCGWINSZ, struct.pack('hh', 0, 0)))
+                return struct.unpack(
+                    'hh',
+                    fcntl.ioctl(
+                        fd, termios.TIOCGWINSZ, struct.pack('hh', 0, 0)
+                    )
+                )
             except:
                 return
 
