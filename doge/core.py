@@ -302,7 +302,7 @@ class DogeMessage(object):
 
         if self.tty.out_is_tty:
             # Apply pretty ANSI color coding.
-            msg = u'[1m[38;5;{0}m{1}[39m[0m'.format(
+            msg = u'\x1b[1m\x1b[38;5;{0}m{1}\x1b[39m\x1b[0m'.format(
                 random.choice(wow.COLORS), msg
             )
 
@@ -348,7 +348,7 @@ def clean_len(s):
 
     """
 
-    s = re.sub(r'\[[0-9;]*m', '', s)
+    s = re.sub(r'\x1b\[[0-9;]*m', '', s)
 
     return len(s)
 
