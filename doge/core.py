@@ -27,7 +27,7 @@ class Doge(object):
         self.doge_path = doge_path
 
         self.real_data = []
-        self.seasonal_words = tuple()
+        self.extra_words = []
 
         # If owna wants his doge instead, let that be. All doges are wow.
         self._no_override_doge = False
@@ -38,7 +38,7 @@ class Doge(object):
         # Setup seasonal data
         self.setup_seasonal()
 
-        if self.tty.is_tty:
+        if self.tty.out_is_tty:
             # stdout is a tty, load Shibe and calculate how wide he is
             doge = self.load_doge()
             max_doge = max(map(clean_len, doge)) + 15
@@ -66,6 +66,9 @@ class Doge(object):
         # Get some system data
         # TODO: Refactor to be stateless
         self.get_real_data()
+
+        # Try to fetch data fed thru stdin
+        self.get_stdin_data()
 
         # Apply the text around Shibe
         self.apply_text()
@@ -104,7 +107,7 @@ class Doge(object):
                         pass
 
                 # Same for text.
-                self.seasonal_words = holiday_setup.get('words', tuple())
+                self.extra_words.extend(list(holiday_setup.get('words', [])))
                 break
 
     def apply_text(self):
@@ -149,7 +152,7 @@ class Doge(object):
             # Generate a new DogeMessage, possibly based on a word.
             self.lines[x] = DogeMessage(
                 self.tty, line, word=word,
-                seasonal_words=self.seasonal_words).generate()
+                extra_words=self.extra_words).generate()
 
     def load_doge(self):
         """
@@ -160,7 +163,11 @@ class Doge(object):
         """
 
         with open(self.doge_path) as f:
-            return f.readlines()
+            if sys.version_info < (3, 0):
+                doge_lines = [l.decode('utf-8') for l in f.xreadlines()]
+            else:
+                doge_lines = [l for l in f.readlines()]
+            return doge_lines
 
     def get_real_data(self):
         """
@@ -197,6 +204,28 @@ class Doge(object):
         # Shuffle all the data, lowercase it, and set it.
         random.shuffle(self.real_data)
         self.real_data = list(map(str.lower, self.real_data))
+
+    def get_stdin_data(self):
+        """
+        Get words from stdin.
+
+        """
+
+        if self.tty.in_is_tty:
+            # No pipez found
+            return
+
+        if sys.version_info < (3, 0):
+            stdin_lines = (l.decode('utf-8') for l in sys.stdin.xreadlines())
+        else:
+            stdin_lines = (l for l in sys.stdin.readlines())
+
+        rx_word = re.compile("\w+", re.UNICODE)
+        self.extra_words.extend([
+            match.group(0)
+            for line in stdin_lines
+            for match in rx_word.finditer(line.lower())
+        ])
 
     def get_processes(self):
         """
@@ -237,11 +266,11 @@ class DogeMessage(object):
 
     """
 
-    def __init__(self, tty, occupied, word=None, seasonal_words=tuple()):
+    def __init__(self, tty, occupied, word=None, extra_words=tuple()):
         self.tty = tty
         self.occupied = occupied
         self.word = word
-        self.seasonal_words = seasonal_words
+        self.extra_words = extra_words
 
     def generate(self):
         if self.word == 'wow':
@@ -250,14 +279,14 @@ class DogeMessage(object):
         else:
             if not self.word:
                 # No word has been set, so grab one randomly from the wordlist.
-                self.word = random.choice(self.seasonal_words + wow.WORDS)
+                self.word = random.choice(tuple(self.extra_words) + wow.WORDS)
 
             # Add a prefix.
-            msg = '{0} {1}'.format(random.choice(wow.PREFIXES), self.word)
+            msg = u'{0} {1}'.format(random.choice(wow.PREFIXES), self.word)
 
             # Seldomly add a suffix as well.
             if random.choice(range(15)) == 0:
-                msg += ' {0}'.format(random.choice(wow.SUFFIXES))
+                msg += u' {0}'.format(random.choice(wow.SUFFIXES))
 
         # Calculate the maximum possible spacer
         interval = self.tty.width - len(msg) - clean_len(self.occupied)
@@ -269,22 +298,23 @@ class DogeMessage(object):
             return '\n'
 
         # Apply spacing
-        msg = '{0}{1}'.format(' ' * random.choice(range(interval)), msg)
+        msg = u'{0}{1}'.format(' ' * random.choice(range(interval)), msg)
 
-        if self.tty.is_tty:
+        if self.tty.out_is_tty:
             # Apply pretty ANSI color coding.
-            msg = '[1m[38;5;{0}m{1}[39m[0m'.format(
+            msg = u'[1m[38;5;{0}m{1}[39m[0m'.format(
                 random.choice(wow.COLORS), msg
             )
 
         # Line ends are pretty cool guys, add one of those.
-        return '{0}{1}\n'.format(self.occupied, msg)
+        return u'{0}{1}\n'.format(self.occupied, msg)
 
 
 class TTYHandler(object):
     def setup(self):
         self.height, self.width = self.get_tty_size()
-        self.is_tty = sys.stdout.isatty()
+        self.in_is_tty = sys.stdin.isatty()
+        self.out_is_tty = sys.stdout.isatty()
 
     def get_tty_size(self):
         """
@@ -297,13 +327,19 @@ class TTYHandler(object):
 
         """
 
-        h, w, hp, wp = struct.unpack(
-            'HHHH',
-            fcntl.ioctl(
-                0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)
-            )
-        )
-        return h, w
+        def _ioctl_call(fd):
+            try:
+                return struct.unpack('hh',
+                    fcntl.ioctl(fd, termios.TIOCGWINSZ, struct.pack('hh', 0, 0)))
+            except:
+                return
+
+        # Try all std{in,out,err} fds
+        hw = _ioctl_call(0) or _ioctl_call(1) or _ioctl_call(2)
+        if not hw:
+            hw = (0, 0)
+
+        return hw
 
 
 def clean_len(s):
@@ -311,10 +347,6 @@ def clean_len(s):
     Calculate the length of a string without it's color codes
 
     """
-
-    # Encoding trouble is so 2013
-    if sys.version_info < (3, 0):
-        s = s.decode('utf-8')
 
     s = re.sub(r'\[[0-9;]*m', '', s)
 
