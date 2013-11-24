@@ -37,7 +37,7 @@ KNOWN_PROCESSES = (
 
     # very talk
     'HipChat', 'Mail',
-    
+
     # wow cluster
     'pbs_sched', 'pbs_mom', 'mpirun', 'sgeexecd', 'slurmd',
 )
@@ -88,7 +88,7 @@ COLORS = (
 # congratulations, so do whatever complex math you need to make sure Shibe
 # celebrates with you!
 SEASONS = {
-    ((11, 20), (12, 26)): {
+    ((12, 14), (12, 26)): {
         'pic': 'static/doge-xmas.txt',
         'words': (
             'christmas', 'xmas', 'candles', 'santa', 'merry', 'reindeers',
