@@ -13,7 +13,7 @@ KNOWN_PROCESSES = (
 
     # pretty browsers
     'chromium', 'luakit', 'uzbl-core', 'firefox', 'jumanji', 'chrome',
-    'thunderbird', 'Safari', 'Google Chrome',
+    'thunderbird', 'Safari', 'Google Chrome', 'iceweasel',
 
     # many wms
     'awesome', 'beryl', 'blackbox', 'bspwm', 'compiz', 'dwm',
