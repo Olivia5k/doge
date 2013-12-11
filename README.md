@@ -32,10 +32,8 @@ Then, just add a call to `doge` at the bottom of your shell rc file.
 
 ## Notes
 
-**doge** optionally requires the `ps` binary on your path to be able to show
-processes. If you don't have `ps`, chances are that **doge** won't run anyway.
-Oh, and you need a terminal that supports 256 colors, but that should not be
-a problem given that is, you know, 2013.
+You need a terminal that supports 256 colors running on a system that supports
+unicode.
 
 The terminal Shibe was created with hax0r Gimp skills and [img2xterm][i2x].
 
