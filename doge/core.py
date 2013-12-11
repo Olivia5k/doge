@@ -196,11 +196,8 @@ class Doge(object):
         if files:
             self.real_data.append(random.choice(files))
 
-        # Scan if any of the known processes are running.
-        for proc in self.get_processes():
-            if proc in wow.KNOWN_PROCESSES:
-                self.real_data.append(proc)
-                break
+        # Grab some processes
+        self.real_data += self.get_processes()[:2]
 
         # Shuffle all the data, lowercase it, and set it.
         random.shuffle(self.real_data)
@@ -246,7 +243,8 @@ class Doge(object):
 
             for comm in output.split('\n'):
                 name = comm.split('/')[-1]
-                if name:
+                # Filter short and weird ones
+                if name and len(name) >= 2 and ':' not in name:
                     procs.add(name)
 
         finally:

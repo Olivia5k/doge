@@ -5,43 +5,6 @@ Please extend this file with more lvl=100 shibe wow.
 
 """
 
-
-KNOWN_PROCESSES = (
-    # wow shells and terminals and etc
-    'urxvt', 'tmux', 'fish', 'ssh', 'mutt', 'screen', 'mosh-client',
-    'Terminal', 'sh', 'bash', 'zsh', 'tcsh', 'csh',
-
-    # pretty browsers
-    'chromium', 'luakit', 'uzbl-core', 'firefox', 'jumanji', 'chrome',
-    'thunderbird', 'Safari', 'Google Chrome', 'iceweasel',
-
-    # many wms
-    'awesome', 'beryl', 'blackbox', 'bspwm', 'compiz', 'dwm',
-    'enlightenment', 'herbstluftwm', 'fluxbox', 'fvwm', 'i3', 'icewm',
-    'kwin', 'metacity', 'musca', 'openbox', 'pekwm', 'ratpoison',
-    'scrotwm', 'wmaker', 'wmfs', 'wmii', 'xfwm4', 'xmonad',
-    'gnome-shell', 'devilspie2',
-
-    # such services and daemons
-    'mpd', 'nginx', 'dzen2', 'systemd', 'lighttpd', 'prosody',
-    'mongod', 'postgres', 'mysqld', 'redis-server', 'php-fpm',
-    'sendmail', 'irssi', 'screen', 'neo4j', 'httpd', 'Flux', 'Dropbox',
-    'VirtualBox', 'VirtualBoxVM', 'tmux', 'xflux', 'weechat', 'xen',
-    'apache', 'sshd',
-
-    # programming languages
-    'ruby', 'python', 'java', 'php', 'node', 'erlang', 'perl',
-
-    # so editors
-    'emacs', 'vim', 'nano', 'gedit', 'sublime_text', 'subl',
-
-    # very talk
-    'HipChat', 'Mail',
-
-    # wow cluster
-    'pbs_sched', 'pbs_mom', 'mpirun', 'sgeexecd', 'slurmd',
-)
-
 PREFIXES = (
     'wow', 'such', 'very', 'so much', 'many', 'lol', 'beautiful',
     'all the', 'the', 'most', 'very much', 'pretty', 'so',
