@@ -367,7 +367,7 @@ def main():
         shibe.setup()
         shibe.print_doge()
 
-    except UnicodeEncodeError:
+    except (UnicodeEncodeError, UnicodeDecodeError):
         # Some kind of unicode error happened. This is usually because the
         # users system does not have a proper locale set up. Try to be helpful
         # and figure out what could have gone wrong.
