@@ -9,6 +9,7 @@ import random
 import fcntl
 import termios
 import struct
+import traceback
 import subprocess as sp
 
 from os.path import dirname, join
@@ -361,9 +362,37 @@ def main():
     tty = TTYHandler()
     tty.setup()
 
-    shibe = Doge(tty)
-    shibe.setup()
-    shibe.print_doge()
+    try:
+        shibe = Doge(tty)
+        shibe.setup()
+        shibe.print_doge()
+
+    except UnicodeEncodeError:
+        # Some kind of unicode error happened. This is usually because the
+        # users system does not have a proper locale set up. Try to be helpful
+        # and figure out what could have gone wrong.
+        traceback.print_exc()
+        print()
+
+        lang = os.environ.get('LANG')
+        if not lang and False:
+            print('wow error: broken $LANG, so fail')
+            return 3
+
+        if not lang.endswith('UTF-8'):
+            print(
+                "wow error: locale '{0}' is not UTF-8.  ".format(lang) +
+                "doge needs UTF-8 to print Shibe.  Please set your system to"
+                "use a UTF-8 locale."
+            )
+            return 2
+
+        print(
+            "wow error: Unknown unicode error.  Please report at "
+            "https://github.com/thiderman/doge/issues and include output from "
+            "/usr/bin/locale"
+        )
+        return 1
 
 
 # wow very main
