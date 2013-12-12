@@ -122,9 +122,10 @@ class Doge(object):
         # some of the repetition that happens just because random is random.
 
         # Calculate a random sampling of lines that are to have text applied
-        # onto them. Return value is a shuffled list of line index integers.
+        # onto them. Return value is a sorted list of line index integers.
         linelen = len(self.lines)
-        affected = random.sample(range(linelen), int(linelen / 3.5))
+        affected = sorted(random.sample(range(linelen), int(linelen / 3.5)))
+        affectlen = len(affected)
 
         # Choose what lines to apply real system data to. Check if a sampling
         # is possible, since random.sample() will crash if you ask for more
@@ -132,26 +133,25 @@ class Doge(object):
         # you have a small selection of affected lines but a lot of system
         # data.
         real_targets = self.real_data
-        if len(affected) > len(real_targets):
+        if affectlen > len(real_targets):
             real_targets = random.sample(affected, len(self.real_data))
 
-        for x in affected:
-            line = self.lines[x]
+        for i, target in enumerate(affected, start=1):
+            line = self.lines[target]
             line = re.sub('\n', ' ', line)
 
             word = None
 
-            # Use real data, but apply some jittering to add to the randomness.
-            if x in real_targets and random.choice(range(2)) == 0:
-                word = self.real_data.pop()
-
-            # If not, then add a standalone wow. This will be jittered by the
-            # fact that the above condition must fail.
-            elif x in affected[-2:]:
+            # If first or last line, or a random selection, use standalone wow.
+            if i == 1 or i == affectlen or random.choice(range(20)) == 0:
                 word = 'wow'
 
+            # Use real data, but apply some jittering to add to the randomness.
+            elif target in real_targets and random.choice(range(2)) == 0:
+                word = self.real_data.pop()
+
             # Generate a new DogeMessage, possibly based on a word.
-            self.lines[x] = DogeMessage(
+            self.lines[target] = DogeMessage(
                 self.tty, line, word=word,
                 extra_words=self.extra_words).generate()
 
