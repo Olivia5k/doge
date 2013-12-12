@@ -25,8 +25,6 @@ class Doge(object):
     def __init__(self, tty, doge_path=default_doge):
         self.tty = tty
         self.doge_path = doge_path
-
-        self.real_data = []
         self.words = wow.WORDS
 
         # If owna wants his doge instead, let that be. All doges are wow.
@@ -63,12 +61,12 @@ class Doge(object):
         self.lines = ['\n' for x in fill]
         self.lines += doge
 
-        # Get some system data
-        # TODO: Refactor to be stateless
-        self.get_real_data()
-
         # Try to fetch data fed thru stdin
-        self.get_stdin_data()
+        had_stdin = self.get_stdin_data()
+
+        # Get some system data, but only if there was nothing in stdin
+        if not had_stdin:
+            self.get_real_data()
 
         # Apply the text around Shibe
         self.apply_text()
@@ -120,30 +118,16 @@ class Doge(object):
         # onto them. Return value is a sorted list of line index integers.
         linelen = len(self.lines)
         affected = sorted(random.sample(range(linelen), int(linelen / 3.5)))
-        affectlen = len(affected)
-
-        # Choose what lines to apply real system data to. Check if a sampling
-        # is possible, since random.sample() will crash if you ask for more
-        # candidates than are available in the list. This makes doge crash if
-        # you have a small selection of affected lines but a lot of system
-        # data.
-        real_targets = self.real_data
-        if affectlen > len(real_targets):
-            real_targets = random.sample(affected, len(self.real_data))
 
         for i, target in enumerate(affected, start=1):
             line = self.lines[target]
             line = re.sub('\n', ' ', line)
 
-            word = None
+            word = self.words.get()
 
             # If first or last line, or a random selection, use standalone wow.
-            if i == 1 or i == affectlen or random.choice(range(20)) == 0:
+            if i == 1 or i == len(affected) or random.choice(range(20)) == 0:
                 word = 'wow'
-
-            # Use real data, but apply some jittering to add to the randomness.
-            elif target in real_targets and random.choice(range(2)) == 0:
-                word = self.real_data.pop()
 
             # Generate a new DogeMessage, possibly based on a word.
             self.lines[target] = DogeMessage(self, line, word).generate()
@@ -169,32 +153,32 @@ class Doge(object):
 
         """
 
+        ret = []
         username = os.environ.get('USER')
         if username:
-            self.real_data.append(username)
+            ret.append(username)
 
         editor = os.environ.get('EDITOR')
         if editor:
             editor = editor.split('/')[-1]
-            self.real_data.append(editor)
+            ret.append(editor)
 
         # OS, hostname and... architechture (because lel)
         uname = os.uname()
-        self.real_data.append(uname[0])
-        self.real_data.append(uname[1])
-        self.real_data.append(uname[4])
+        ret.append(uname[0])
+        ret.append(uname[1])
+        ret.append(uname[4])
 
         # Grab actual files from $HOME.
         files = os.listdir(os.environ.get('HOME'))
         if files:
-            self.real_data.append(random.choice(files))
+            ret.append(random.choice(files))
 
         # Grab some processes
-        self.real_data += self.get_processes()[:2]
+        ret += self.get_processes()[:2]
 
-        # Shuffle all the data, lowercase it, and set it.
-        random.shuffle(self.real_data)
-        self.real_data = list(map(str.lower, self.real_data))
+        # Lowercase the data, and set it into the wordlist.
+        self.words.extend(map(str.lower, ret))
 
     def get_stdin_data(self):
         """
@@ -204,7 +188,7 @@ class Doge(object):
 
         if self.tty.in_is_tty:
             # No pipez found
-            return
+            return False
 
         if sys.version_info < (3, 0):
             stdin_lines = (l.decode('utf-8') for l in sys.stdin.xreadlines())
@@ -212,11 +196,17 @@ class Doge(object):
             stdin_lines = (l for l in sys.stdin.readlines())
 
         rx_word = re.compile("\w+", re.UNICODE)
-        self.extra_words.extend([
+
+        # If we have stdin data, we should remove everything else!
+        self.words.clear()
+
+        self.words.extend([
             match.group(0)
             for line in stdin_lines
             for match in rx_word.finditer(line.lower())
         ])
+
+        return True
 
     def get_processes(self):
         """
@@ -269,10 +259,6 @@ class DogeMessage(object):
             # Standalone wow. Don't apply any prefixes or suffixes.
             msg = self.word
         else:
-            if not self.word:
-                # No word has been set, so grab one randomly from the wordlist.
-                self.word = self.doge.words.get()
-
             # Add a prefix.
             msg = u'{0} {1}'.format(wow.PREFIXES.get(), self.word)
 
@@ -366,7 +352,7 @@ def main():
         print()
 
         lang = os.environ.get('LANG')
-        if not lang and False:
+        if not lang:
             print('wow error: broken $LANG, so fail')
             return 3
 
