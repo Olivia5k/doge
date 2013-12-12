@@ -1,7 +1,7 @@
 doge
 ====
 
-![wow screenshot](http://i.imgur.com/kBeMBRo.png)
+![wow screenshot](http://i.imgur.com/HxH9qka.png)
 
 
 **doge** is a simple motd script based on the slightly stupid but very funny
@@ -20,6 +20,8 @@ For more information about getting a setup like the one in the screenshot, see
 * If you have [lolcat][lolcat], you can do this gem:
   `while true; do doge | lolcat -a -d 100 -s 100 -p 1; done`
   (thx [hom3chuk][hom3chuk])
+* stdin support: `ls /usr/bin | doge` will doge-print some of the executables
+  found in /usr/bin. wow.
 
 ## Installation
 
