@@ -13,7 +13,7 @@ import traceback
 import subprocess as sp
 
 from os.path import dirname, join
-from os import environ, listdir
+from os import environ, listdir  # TODO: Refactor
 
 from doge import wow
 
@@ -28,7 +28,7 @@ class Doge(object):
         self.doge_path = doge_path
 
         self.real_data = []
-        self.extra_words = []
+        self.words = wow.WORDS
 
         # If owna wants his doge instead, let that be. All doges are wow.
         self._no_override_doge = False
@@ -108,7 +108,7 @@ class Doge(object):
                         pass
 
                 # Same for text.
-                self.extra_words.extend(list(holiday_setup.get('words', [])))
+                self.words.extend(list(holiday_setup.get('words', [])))
                 break
 
     def apply_text(self):
@@ -116,10 +116,6 @@ class Doge(object):
         Apply text around doge
 
         """
-
-        # TODO: Refactor the shuffling so that it is not true random but rather
-        # a shuffled start that is iterated over. This should remove at least
-        # some of the repetition that happens just because random is random.
 
         # Calculate a random sampling of lines that are to have text applied
         # onto them. Return value is a sorted list of line index integers.
@@ -151,9 +147,7 @@ class Doge(object):
                 word = self.real_data.pop()
 
             # Generate a new DogeMessage, possibly based on a word.
-            self.lines[target] = DogeMessage(
-                self.tty, line, word=word,
-                extra_words=self.extra_words).generate()
+            self.lines[target] = DogeMessage(self, line, word).generate()
 
     def load_doge(self):
         """
@@ -265,11 +259,11 @@ class DogeMessage(object):
 
     """
 
-    def __init__(self, tty, occupied, word=None, extra_words=tuple()):
-        self.tty = tty
+    def __init__(self, doge, occupied, word):
+        self.doge = doge
+        self.tty = doge.tty
         self.occupied = occupied
         self.word = word
-        self.extra_words = extra_words
 
     def generate(self):
         if self.word == 'wow':
@@ -278,14 +272,14 @@ class DogeMessage(object):
         else:
             if not self.word:
                 # No word has been set, so grab one randomly from the wordlist.
-                self.word = random.choice(tuple(self.extra_words) + wow.WORDS)
+                self.word = self.doge.words.get()
 
             # Add a prefix.
-            msg = u'{0} {1}'.format(random.choice(wow.PREFIXES), self.word)
+            msg = u'{0} {1}'.format(wow.PREFIXES.get(), self.word)
 
             # Seldomly add a suffix as well.
             if random.choice(range(15)) == 0:
-                msg += u' {0}'.format(random.choice(wow.SUFFIXES))
+                msg += u' {0}'.format(wow.SUFFIXES.get())
 
         # Calculate the maximum possible spacer
         interval = self.tty.width - len(msg) - clean_len(self.occupied)
@@ -302,7 +296,7 @@ class DogeMessage(object):
         if self.tty.out_is_tty:
             # Apply pretty ANSI color coding.
             msg = u'\x1b[1m\x1b[38;5;{0}m{1}\x1b[39m\x1b[0m'.format(
-                random.choice(wow.COLORS), msg
+                wow.COLORS.get(), msg
             )
 
         # Line ends are pretty cool guys, add one of those.
