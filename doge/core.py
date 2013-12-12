@@ -13,7 +13,6 @@ import traceback
 import subprocess as sp
 
 from os.path import dirname, join
-from os import environ, listdir  # TODO: Refactor
 
 from doge import wow
 
@@ -56,7 +55,7 @@ class Doge(object):
 
         # Check for prompt height so that we can fill the screen minus how high
         # the prompt will be when done.
-        prompt = environ.get('PS1', '').split('\n')
+        prompt = os.environ.get('PS1', '').split('\n')
         line_count = len(prompt) + 1
 
         # Create a list filled with empty lines and Shibe at the bottom.
@@ -186,7 +185,7 @@ class Doge(object):
         self.real_data.append(uname[4])
 
         # Grab actual files from $HOME.
-        files = listdir(os.environ.get('HOME'))
+        files = os.listdir(os.environ.get('HOME'))
         if files:
             self.real_data.append(random.choice(files))
 
