@@ -11,6 +11,7 @@ import termios
 import struct
 import traceback
 import subprocess as sp
+import unicodedata
 
 from os.path import dirname, join
 
@@ -267,7 +268,7 @@ class DogeMessage(object):
                 msg += u' {0}'.format(wow.SUFFIXES.get())
 
         # Calculate the maximum possible spacer
-        interval = self.tty.width - len(msg) - clean_len(self.occupied)
+        interval = self.tty.width - onscreen_len(msg) - clean_len(self.occupied)
 
         if interval < 1:
             # The interval is too low, so the message can not be shown without
@@ -334,6 +335,17 @@ def clean_len(s):
 
     return len(s)
 
+
+def onscreen_len(s):
+    """
+    Calculate the length of a string on screen, accounting for double-width characters
+    """
+
+    length = 0
+    for ch in s:
+        length += 2 if unicodedata.east_asian_width(ch) == 'W' else 1
+
+    return length
 
 def main():
     tty = TTYHandler()
