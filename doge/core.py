@@ -338,8 +338,11 @@ def clean_len(s):
 
 def onscreen_len(s):
     """
-    Calculate the length of a string on screen, accounting for double-width characters
+    Calculate the length of a unicode string on screen, accounting for double-width characters
     """
+
+    if sys.version_info < (3, 0) and isinstance(s, str):
+        return len(s)
 
     length = 0
     for ch in s:
