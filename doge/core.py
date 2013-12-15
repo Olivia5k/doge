@@ -273,8 +273,9 @@ class DogeMessage(object):
         if interval < 1:
             # The interval is too low, so the message can not be shown without
             # spilling over to the subsequent line, borking the setup.
-            # Return an empty line, effectively disabling this row.
-            return '\n'
+            # Return the doge slice that was in this row if there was one,
+            # and a line break, effectively disabling the row.
+            return self.occupied + "\n"
 
         # Apply spacing
         msg = u'{0}{1}'.format(' ' * random.choice(range(interval)), msg)
