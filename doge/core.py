@@ -10,6 +10,7 @@ import fcntl
 import termios
 import struct
 import traceback
+import argparse
 import subprocess as sp
 import unicodedata
 
@@ -23,14 +24,16 @@ ROOT = dirname(__file__)
 class Doge(object):
     default_doge = join(ROOT, 'static/doge.txt')
 
-    def __init__(self, tty, doge_path=default_doge):
+    def __init__(self, tty, ns):
         self.tty = tty
-        self.doge_path = doge_path
+        self.ns = ns
+        self.doge_path = self.default_doge
         self.words = wow.WORDS
+        self._no_override_doge = False
 
         # If owna wants his doge instead, let that be. All doges are wow.
-        self._no_override_doge = False
-        if doge_path != self.default_doge:
+        if ns.doge_path:
+            self.doge_path = join(ROOT, 'static', ns.doge_path)
             self._no_override_doge = True
 
     def setup(self):
@@ -140,6 +143,9 @@ class Doge(object):
         wow
 
         """
+
+        if self.ns.no_shibe:
+            return ['']
 
         with open(self.doge_path) as f:
             if sys.version_info < (3, 0):
@@ -268,7 +274,8 @@ class DogeMessage(object):
                 msg += u' {0}'.format(wow.SUFFIXES.get())
 
         # Calculate the maximum possible spacer
-        interval = self.tty.width - onscreen_len(msg) - clean_len(self.occupied)
+        interval = self.tty.width - onscreen_len(msg)
+        interval -= clean_len(self.occupied)
 
         if interval < 1:
             # The interval is too low, so the message can not be shown without
@@ -339,7 +346,9 @@ def clean_len(s):
 
 def onscreen_len(s):
     """
-    Calculate the length of a unicode string on screen, accounting for double-width characters
+    Calculate the length of a unicode string on screen,
+    accounting for double-width characters
+
     """
 
     if sys.version_info < (3, 0) and isinstance(s, str):
@@ -351,12 +360,35 @@ def onscreen_len(s):
 
     return length
 
+
+def setup_arguments():
+    parser = argparse.ArgumentParser('doge')
+
+    parser.add_argument(
+        '--shibe',
+        help='wow shibe file',
+        dest='doge_path',
+        choices=os.listdir(join(ROOT, 'static'))
+    )
+
+    parser.add_argument(
+        '--no-shibe',
+        action="store_true",
+        help="wow no doge show :("
+    )
+
+    return parser
+
+
 def main():
     tty = TTYHandler()
     tty.setup()
 
+    parser = setup_arguments()
+    ns = parser.parse_args()
+
     try:
-        shibe = Doge(tty)
+        shibe = Doge(tty, ns)
         shibe.setup()
         shibe.print_doge()
 
