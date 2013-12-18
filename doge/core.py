@@ -18,23 +18,16 @@ from os.path import dirname, join
 
 from doge import wow
 
-ROOT = dirname(__file__)
+ROOT = join(dirname(__file__), 'static')
+DEFAULT_DOGE = 'doge.txt'
 
 
 class Doge(object):
-    default_doge = join(ROOT, 'static/doge.txt')
-
     def __init__(self, tty, ns):
         self.tty = tty
         self.ns = ns
-        self.doge_path = self.default_doge
+        self.doge_path = join(ROOT, ns.doge_path or DEFAULT_DOGE)
         self.words = wow.WORDS
-        self._no_override_doge = False
-
-        # If owna wants his doge instead, let that be. All doges are wow.
-        if ns.doge_path:
-            self.doge_path = join(ROOT, 'static', ns.doge_path)
-            self._no_override_doge = True
 
     def setup(self):
         # Setup seasonal data
@@ -85,32 +78,36 @@ class Doge(object):
 
         """
 
+        # If we've specified a season, just run that one
+        if self.ns.season:
+            return self.load_season(self.ns.season)
+
+        # If we've specified another doge or no doge at all, it does not make
+        # sense to use seasons.
+        if not self.ns.doge_path is None and not self.ns.no_shibe:
+            return
+
         now = datetime.datetime.now()
-        current_year = now.year
 
-        for ival in wow.SEASONS:
-            start, end = ival
-
-            start_dt = datetime.datetime(current_year, start[0], start[1])
+        for season, data in wow.SEASONS.items():
+            start, end = data['dates']
+            start_dt = datetime.datetime(now.year, start[0], start[1])
 
             # Be sane if the holiday season spans over New Year's day.
             end_dt = datetime.datetime(
-                current_year + (start[0] > end[0] and 1 or 0), end[0], end[1])
+                now.year + (start[0] > end[0] and 1 or 0), end[0], end[1])
 
             if start_dt <= now <= end_dt:
                 # Wow, much holiday!
-                holiday_setup = wow.SEASONS[ival]
+                return self.load_season(season)
 
-                if not self._no_override_doge:
-                    # Get the picture, if defined.
-                    try:
-                        self.doge_path = join(ROOT, holiday_setup['pic'])
-                    except KeyError:
-                        pass
+    def load_season(self, season_key):
+        if season_key == 'none':
+            return
 
-                # Same for text.
-                self.words.extend(list(holiday_setup.get('words', [])))
-                break
+        season = wow.SEASONS[season_key]
+        self.doge_path = join(ROOT, season['pic'])
+        self.words.extend(season['words'])
 
     def apply_text(self):
         """
@@ -368,13 +365,19 @@ def setup_arguments():
         '--shibe',
         help='wow shibe file',
         dest='doge_path',
-        choices=os.listdir(join(ROOT, 'static'))
+        choices=os.listdir(ROOT)
     )
 
     parser.add_argument(
         '--no-shibe',
         action="store_true",
         help="wow no doge show :("
+    )
+
+    parser.add_argument(
+        '--season',
+        help='wow shibe season congrate',
+        choices=sorted(wow.SEASONS.keys()) + ['none']
     )
 
     return parser

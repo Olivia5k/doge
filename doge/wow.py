@@ -105,14 +105,14 @@ COLORS = DogeDeque(
 )
 
 # Seasonal greetings by Shibe.
-# Keys for this dictionary are tuples with start and end dates for the holiday.
 # Tuple for every single date is in (month, day) format (year is discarded).
 # Doge checks if current date falls in between these dates and show wow
 # congratulations, so do whatever complex math you need to make sure Shibe
 # celebrates with you!
 SEASONS = {
-    ((12, 14), (12, 26)): {
-        'pic': 'static/doge-xmas.txt',
+    'xmas': {
+        'dates': ((12, 14), (12, 26)),
+        'pic': 'doge-xmas.txt',
         'words': (
             'christmas', 'xmas', 'candles', 'santa', 'merry', 'reindeers',
             'gifts', 'jul', 'vacation', 'carol',
