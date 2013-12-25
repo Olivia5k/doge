@@ -6,8 +6,6 @@ import os
 import sys
 import re
 import random
-import fcntl
-import termios
 import struct
 import traceback
 import argparse
@@ -33,7 +31,7 @@ class Doge(object):
         # Setup seasonal data
         self.setup_seasonal()
 
-        if self.tty.out_is_tty:
+        if self.tty.pretty:
             # stdout is a tty, load Shibe and calculate how wide he is
             doge = self.load_doge()
             max_doge = max(map(clean_len, doge)) + 15
@@ -168,10 +166,11 @@ class Doge(object):
             ret.append(editor)
 
         # OS, hostname and... architechture (because lel)
-        uname = os.uname()
-        ret.append(uname[0])
-        ret.append(uname[1])
-        ret.append(uname[4])
+        if hasattr(os, 'uname'):
+            uname = os.uname()
+            ret.append(uname[0])
+            ret.append(uname[1])
+            ret.append(uname[4])
 
         # Grab actual files from $HOME.
         files = os.listdir(os.environ.get('HOME'))
@@ -242,7 +241,7 @@ class Doge(object):
 
     def print_doge(self):
         for line in self.lines:
-            sys.stdout.write(line)
+            sys.stdout.write(line.encode('utf8'))
         sys.stdout.flush()
 
 
@@ -284,7 +283,7 @@ class DogeMessage(object):
         # Apply spacing
         msg = u'{0}{1}'.format(' ' * random.choice(range(interval)), msg)
 
-        if self.tty.out_is_tty:
+        if self.tty.pretty:
             # Apply pretty ANSI color coding.
             msg = u'\x1b[1m\x1b[38;5;{0}m{1}\x1b[39m\x1b[0m'.format(
                 wow.COLORS.get(), msg
@@ -300,6 +299,36 @@ class TTYHandler(object):
         self.in_is_tty = sys.stdin.isatty()
         self.out_is_tty = sys.stdout.isatty()
 
+        self.pretty = self.out_is_tty
+        if sys.platform == 'win32' and os.getenv('TERM') == 'xterm':
+            self.pretty = True
+
+    def _tty_size_windows(self, handle):
+        try:
+            from ctypes import windll, create_string_buffer
+
+            h = windll.kernel32.GetStdHandle(handle)
+            buf = create_string_buffer(22)
+
+            if windll.kernel32.GetConsoleScreenBufferInfo(h, buf):
+                left, top, right, bottom = struct.unpack('4H', buf.raw[10:18])
+                return right - left + 1, bottom - top + 1
+        except:
+            pass
+
+    def _tty_size_linux(self, fd):
+        try:
+            import fcntl
+            import termios
+            return struct.unpack(
+                'hh',
+                fcntl.ioctl(
+                    fd, termios.TIOCGWINSZ, struct.pack('hh', 0, 0)
+                )
+            )
+        except:
+            return
+
     def get_tty_size(self):
         """
         Get the current terminal size without using a subprocess
@@ -310,24 +339,18 @@ class TTYHandler(object):
         does.
 
         """
+        if sys.platform == 'win32':
+            # stdin, stdout, stderr = -10, -11, -12
+            ret = self._tty_size_windows(-10)
+            ret = ret or self._tty_size_windows(-11)
+            ret = ret or self._tty_size_windows(-12)
+        else:
+            # stdin, stdout, stderr = 0, 1, 2
+            ret = self._tty_size_linux(0)
+            ret = ret or self._tty_size_linux(1)
+            ret = ret or self._tty_size_linux(2)
 
-        def _ioctl_call(fd):
-            try:
-                return struct.unpack(
-                    'hh',
-                    fcntl.ioctl(
-                        fd, termios.TIOCGWINSZ, struct.pack('hh', 0, 0)
-                    )
-                )
-            except:
-                return
-
-        # Try all std{in,out,err} fds
-        hw = _ioctl_call(0) or _ioctl_call(1) or _ioctl_call(2)
-        if not hw:
-            hw = (0, 0)
-
-        return hw
+        return ret or (25, 80)
 
 
 def clean_len(s):
