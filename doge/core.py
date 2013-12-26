@@ -241,7 +241,9 @@ class Doge(object):
 
     def print_doge(self):
         for line in self.lines:
-            sys.stdout.write(line.encode('utf8'))
+            if sys.version_info < (3, 0):
+                line = line.encode('utf8')
+            sys.stdout.write(line)
         sys.stdout.flush()
 
 
