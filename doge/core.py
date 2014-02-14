@@ -181,7 +181,7 @@ class Doge(object):
         ret += self.get_processes()[:2]
 
         # Lowercase the data, and set it into the wordlist.
-        self.words.extend(map(str.lower, ret))
+        self.words.extend(map(lambda x: str.lower(x).decode('utf-8'), ret))
 
     def get_stdin_data(self):
         """
