@@ -180,8 +180,14 @@ class Doge(object):
         # Grab some processes
         ret += self.get_processes()[:2]
 
-        # Lowercase the data, and set it into the wordlist.
-        self.words.extend(map(lambda x: str.lower(x).decode('utf-8'), ret))
+        # Prepare the returned data. First, lowercase it.
+        # If there is unicode data being returned from any of the above
+        # Python 2 needs to decode the UTF bytes to not crash. See issue #45.
+        func = str.lower
+        if sys.version_info < (3,):
+            func = lambda x: str.lower(x).decode('utf-8')
+
+        self.words.extend(map(func, ret))
 
     def get_stdin_data(self):
         """
