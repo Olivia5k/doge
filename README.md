@@ -30,6 +30,10 @@ For more information about getting a setup like the one in the screenshot, see
 If you don't want to do that for whatever reason, there is a proper `setup.py`
 included, so `python setup.py install` should be just fine for that.
 
+Note that if you are one of the unlucky doges to still run a Python that does
+not have argparse (<=Python2.6) you will have to install argparse manually from
+pypi. so old, very update need.
+
 Then, just add a call to `doge` at the bottom of your shell rc file.
 
 ## Notes
