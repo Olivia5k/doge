@@ -25,7 +25,12 @@ class Doge(object):
         self.tty = tty
         self.ns = ns
         self.doge_path = join(ROOT, ns.doge_path or DEFAULT_DOGE)
-        self.words = wow.WORDS
+        if ns.frequency:
+            # such frequency based
+            self.words = \
+                wow.FrequencyBasedDogeDeque(*wow.WORD_LIST, step=ns.step)
+        else:
+            self.words = wow.DogeDeque(*wow.WORD_LIST)
 
     def setup(self):
         # Setup seasonal data
@@ -82,7 +87,7 @@ class Doge(object):
 
         # If we've specified another doge or no doge at all, it does not make
         # sense to use seasons.
-        if not self.ns.doge_path is None and not self.ns.no_shibe:
+        if self.ns.doge_path is not None and not self.ns.no_shibe:
             return
 
         now = datetime.datetime.now()
@@ -189,6 +194,10 @@ class Doge(object):
 
         self.words.extend(map(func, ret))
 
+    def filter_words(self, words, stopwords, min_length):
+        return [word for word in words if
+                len(word) >= min_length and word not in stopwords]
+
     def get_stdin_data(self):
         """
         Get words from stdin.
@@ -208,12 +217,15 @@ class Doge(object):
 
         # If we have stdin data, we should remove everything else!
         self.words.clear()
+        word_list = [match.group(0)
+                     for line in stdin_lines
+                     for match in rx_word.finditer(line.lower())]
+        if self.ns.filter_stopwords:
+            word_list = self.filter_words(
+                word_list, stopwords=wow.STOPWORDS,
+                min_length=self.ns.min_length)
 
-        self.words.extend([
-            match.group(0)
-            for line in stdin_lines
-            for match in rx_word.finditer(line.lower())
-        ])
+        self.words.extend(word_list)
 
         return True
 
@@ -328,6 +340,7 @@ class TTYHandler(object):
         try:
             import fcntl
             import termios
+
             return struct.unpack(
                 'hh',
                 fcntl.ioctl(
@@ -409,6 +422,33 @@ def setup_arguments():
         '--season',
         help='wow shibe season congrate',
         choices=sorted(wow.SEASONS.keys()) + ['none']
+    )
+
+    parser.add_argument(
+        '-f', '--frequency',
+        help='such frequency based',
+        action='store_true'
+    )
+
+    parser.add_argument(
+        '--step',
+        help='beautiful step',  # how much to step
+        #  between ranks in FrequencyBasedDogeDeque
+        type=int,
+        default=2,
+    )
+
+    parser.add_argument(
+        '--min_length',
+        help='pretty minimum',  # minimum length of a word
+        type=int,
+        default=1,
+    )
+
+    parser.add_argument(
+        '-s', '--filter_stopwords',
+        help='many words lol',
+        action='store_true'
     )
 
     return parser
