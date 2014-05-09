@@ -21,8 +21,8 @@ For more information about getting a setup like the one in the screenshot, see
   `while true; do doge | lolcat -a -d 100 -s 100 -p 1; done`
   (thx [hom3chuk][hom3chuk])
 * stdin support: `ls /usr/bin | doge` will doge-print some of the executables
-  found in /usr/bin. wow. Also, the `-s` flag will filter out common words if
-  you are passing a body of text.
+  found in /usr/bin. wow. There are also multiple command line switches that
+  control filtering and statistical frequency of words. See `doge -h`, wow.
 
 ## Installation
 
