@@ -481,7 +481,7 @@ def main():
         if not lang.endswith('UTF-8'):
             print(
                 "wow error: locale '{0}' is not UTF-8.  ".format(lang) +
-                "doge needs UTF-8 to print Shibe.  Please set your system to"
+                "doge needs UTF-8 to print Shibe.  Please set your system to "
                 "use a UTF-8 locale."
             )
             return 2
