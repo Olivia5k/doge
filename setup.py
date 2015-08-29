@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='doge',
@@ -10,9 +10,6 @@ setup(
     license='MIT',
     packages=['doge'],
     package_data={'doge': ['static/*.txt']},
-    scripts=[
-        'bin/doge'
-    ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
@@ -20,4 +17,5 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 2',
     ],
+    entry_points={'console_scripts': ['doge = doge.core:main']},
 )
