@@ -158,11 +158,19 @@ COLORS = DogeDeque(
 # celebrates with you!
 SEASONS = {
     'halloween': {
-        'dates': ((11, 5), (11, 10)), #((10, 17), (10, 31)),
+        'dates': ((10, 17), (10, 31)),
         'pic': 'doge-halloween.txt',
         'words': (
             'halloween', 'scary', 'ghosts', 'boo', 'candy', 'tricks or treats',
             'trick', 'treat', 'costume', 'dark', 'night'
+        )
+    },
+    'thanksgiving': {
+        'dates': ((11, 15), (11, 28)),
+        'pic': 'doge-thanksgiving.txt',
+        'words': (
+            'thanksgiving', 'thanks', 'pilgrim', 'turkeys', 'stuffings',
+            'cranberry', 'meshed potatoes'
         )
     },
     'xmas': {
