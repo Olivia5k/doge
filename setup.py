@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='doge',
-    version='3.5.1',
+    version='3.6.0',
     url='https://github.com/thiderman/doge',
     author='Lowe Thiderman',
     author_email='lowe.thiderman@gmail.com',
