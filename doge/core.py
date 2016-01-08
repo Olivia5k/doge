@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import datetime
+import locale
 import os
 import sys
 import re
@@ -149,7 +150,18 @@ class Doge(object):
 
         with open(self.doge_path) as f:
             if sys.version_info < (3, 0):
-                doge_lines = [l.decode('utf-8') for l in f.xreadlines()]
+                if locale.getpreferredencoding() == 'UTF-8':
+                    doge_lines = [l.decode('utf-8') for l in f.xreadlines()]
+                else:
+                    # encode to printable characters, leaving a space in place
+                    # of untranslatable characters, resulting in a slightly
+                    # blockier doge on non-UTF8 terminals
+                    doge_lines = [
+                        l.decode('utf-8')
+                        .encode(locale.getpreferredencoding(), 'replace')
+                        .replace('?', ' ')
+                        for l in f.xreadlines()
+                    ]
             else:
                 doge_lines = [l for l in f.readlines()]
             return doge_lines
