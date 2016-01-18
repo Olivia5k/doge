@@ -463,6 +463,17 @@ def setup_arguments():
         action='store_true'
     )
 
+    parser.add_argument(
+        '-mh', '--max-height',
+        help='such max height',
+        type=int,
+    )
+
+    parser.add_argument(
+        '-mw', '--max-width',
+        help='such max width',
+        type=int,
+    )
     return parser
 
 
@@ -472,6 +483,10 @@ def main():
 
     parser = setup_arguments()
     ns = parser.parse_args()
+    if ns.max_height:
+        tty.height = ns.max_height
+    if ns.max_width:
+        tty.width = ns.max_width
 
     try:
         shibe = Doge(tty, ns)
