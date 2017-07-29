@@ -1,0 +1,17 @@
+name: doge # you probably want to 'snapcraft register <name>'
+version: '3.6.0' # just for humans, typically '1.2+git' or '1.3.2'
+summary: doge is a simple motd script
+description: doge is a simple motd script based on the slightly stupid but very funny doge meme.
+
+grade: stable # must be 'stable' to release into candidate/stable channels
+confinement: strict # use 'strict' once you have the right plugs and slots
+
+apps: 
+  doge:  
+    command: doge
+
+parts:
+  doge:
+    # See 'snapcraft plugins'
+    plugin: python
+    python-version: python2
