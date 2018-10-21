@@ -28,6 +28,8 @@ For more information about getting a setup like the one in the screenshot, see
 
 `pip install doge`
 
+*Ubuntu or Debian users may have to use `sudo -H`, see issue [#61](https://github.com/thiderman/doge/issues/61).*
+
 If you don't want to do that for whatever reason, there is a proper `setup.py`
 included, so `python setup.py install` should be just fine for that.
 
