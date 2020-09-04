@@ -540,7 +540,6 @@ def main():
         return 1
 
 
- wow very main
+# wow very main
 if __name__ == "__main__":
     sys.exit(main())
-main()
