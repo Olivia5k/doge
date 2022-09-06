@@ -50,7 +50,7 @@ class Doge(object):
             # Shibe won't fit, so abort.
             sys.stderr.write('wow, such small terminal\n')
             sys.stderr.write('no doge under {0} column\n'.format(max_doge))
-            sys.exit(1)
+            return False
 
         # Check for prompt height so that we can fill the screen minus how high
         # the prompt will be when done.
@@ -71,6 +71,7 @@ class Doge(object):
 
         # Apply the text around Shibe
         self.apply_text()
+        return True
 
     def setup_seasonal(self):
         """
@@ -490,7 +491,9 @@ def main():
 
     try:
         shibe = Doge(tty, ns)
-        shibe.setup()
+        if not shibe.setup():
+            # We assume that setup() prints what went wrong.
+            return 1
         shibe.print_doge()
 
     except (UnicodeEncodeError, UnicodeDecodeError):
