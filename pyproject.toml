@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "doge"
-version = "3.6.0"
+version = "3.7.0"
 description = "wow very terminal doge"
 authors = [
     {name = "Olivia Thiderman", email = "olivia@thiderman.org"},
