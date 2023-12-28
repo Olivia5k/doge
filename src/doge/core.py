@@ -44,8 +44,8 @@ class Doge(object):
             doge = []
             max_doge = 15
 
-        if self.ns.density > 3.5:
-            sys.stderr.write('wow, density such over 3.5, too high\n')
+        if self.ns.density > 100:
+            sys.stderr.write('wow, density such over 100%, too high\n')
             sys.exit(1)
 
         if self.ns.density < 0:
@@ -133,7 +133,7 @@ class Doge(object):
         if self.ns.density == 0:
             return
 
-        affected = sorted(random.sample(range(linelen), int(linelen / (3.5 / self.ns.density))))
+        affected = sorted(random.sample(range(linelen), int(linelen * (self.ns.density / 100))))
 
         for i, target in enumerate(affected, start=1):
             line = self.lines[target]
@@ -457,9 +457,9 @@ def setup_arguments():
 
     parser.add_argument(
         '-d', '--density',
-        help='such word density, max is 3.5, default is 1, wow',
+        help='such word density percent, max is 100, default is 30, wow',
         type=float,
-        default=1,
+        default=30,
     )
     return parser
 
