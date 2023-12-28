@@ -2,7 +2,6 @@
 # coding: utf-8
 
 import datetime
-import locale
 import os
 import sys
 import re
@@ -12,12 +11,11 @@ import traceback
 import argparse
 import subprocess as sp
 import unicodedata
-
-from os.path import dirname, join
+from importlib.resources import files
 
 from doge import wow
 
-ROOT = join(dirname(__file__), 'static')
+ROOT = files('doge').joinpath('static')
 DEFAULT_DOGE = 'doge.txt'
 
 
@@ -25,7 +23,7 @@ class Doge(object):
     def __init__(self, tty, ns):
         self.tty = tty
         self.ns = ns
-        self.doge_path = join(ROOT, ns.doge_path or DEFAULT_DOGE)
+        self.doge_path = ROOT.joinpath(ns.doge_path or DEFAULT_DOGE)
         if ns.frequency:
             # such frequency based
             self.words = \
@@ -58,7 +56,7 @@ class Doge(object):
             # Shibe won't fit, so abort.
             sys.stderr.write('wow, such small terminal\n')
             sys.stderr.write('no doge under {0} column\n'.format(max_doge))
-            sys.exit(1)
+            return False
 
         # Check for prompt height so that we can fill the screen minus how high
         # the prompt will be when done.
@@ -79,6 +77,7 @@ class Doge(object):
 
         # Apply the text around Shibe
         self.apply_text()
+        return True
 
     def setup_seasonal(self):
         """
@@ -118,7 +117,7 @@ class Doge(object):
             return
 
         season = wow.SEASONS[season_key]
-        self.doge_path = join(ROOT, season['pic'])
+        self.doge_path = ROOT.joinpath(season['pic'])
         self.words.extend(season['words'])
 
     def apply_text(self):
@@ -160,23 +159,7 @@ class Doge(object):
         if self.ns.no_shibe:
             return ['']
 
-        with open(self.doge_path) as f:
-            if sys.version_info < (3, 0):
-                if locale.getpreferredencoding() == 'UTF-8':
-                    doge_lines = [l.decode('utf-8') for l in f.xreadlines()]
-                else:
-                    # encode to printable characters, leaving a space in place
-                    # of untranslatable characters, resulting in a slightly
-                    # blockier doge on non-UTF8 terminals
-                    doge_lines = [
-                        l.decode('utf-8')
-                        .encode(locale.getpreferredencoding(), 'replace')
-                        .replace('?', ' ')
-                        for l in f.xreadlines()
-                    ]
-            else:
-                doge_lines = [l for l in f.readlines()]
-            return doge_lines
+        return self.doge_path.read_text(encoding='utf-8').splitlines(keepends=True)
 
     def get_real_data(self):
         """
@@ -202,21 +185,15 @@ class Doge(object):
             ret.append(uname[4])
 
         # Grab actual files from $HOME.
-        files = os.listdir(os.environ.get('HOME'))
-        if files:
-            ret.append(random.choice(files))
+        filenames = os.listdir(os.environ.get('HOME'))
+        if filenames:
+            ret.append(random.choice(filenames))
 
         # Grab some processes
         ret += self.get_processes()[:2]
 
         # Prepare the returned data. First, lowercase it.
-        # If there is unicode data being returned from any of the above
-        # Python 2 needs to decode the UTF bytes to not crash. See issue #45.
-        func = str.lower
-        if sys.version_info < (3,):
-            func = lambda x: str.lower(x).decode('utf-8')
-
-        self.words.extend(map(func, ret))
+        self.words.extend(map(str.lower, ret))
 
     def filter_words(self, words, stopwords, min_length):
         return [word for word in words if
@@ -232,12 +209,9 @@ class Doge(object):
             # No pipez found
             return False
 
-        if sys.version_info < (3, 0):
-            stdin_lines = (l.decode('utf-8') for l in sys.stdin.xreadlines())
-        else:
-            stdin_lines = (l for l in sys.stdin.readlines())
+        stdin_lines = (l for l in sys.stdin.readlines())
 
-        rx_word = re.compile("\w+", re.UNICODE)
+        rx_word = re.compile(r"\w+", re.UNICODE)
 
         # If we have stdin data, we should remove everything else!
         self.words.clear()
@@ -266,8 +240,7 @@ class Doge(object):
             p = sp.Popen(['ps', '-A', '-o', 'comm='], stdout=sp.PIPE)
             output, error = p.communicate()
 
-            if sys.version_info > (3, 0):
-                output = output.decode('utf-8')
+            output = output.decode('utf-8')
 
             for comm in output.split('\n'):
                 name = comm.split('/')[-1]
@@ -283,8 +256,6 @@ class Doge(object):
 
     def print_doge(self):
         for line in self.lines:
-            if sys.version_info < (3, 0):
-                line = line.encode('utf8')
             sys.stdout.write(line)
         sys.stdout.flush()
 
@@ -416,9 +387,6 @@ def onscreen_len(s):
 
     """
 
-    if sys.version_info < (3, 0) and isinstance(s, str):
-        return len(s)
-
     length = 0
     for ch in s:
         length += 2 if unicodedata.east_asian_width(ch) == 'W' else 1
@@ -433,7 +401,7 @@ def setup_arguments():
         '--shibe',
         help='wow shibe file',
         dest='doge_path',
-        choices=os.listdir(ROOT)
+        choices=[file.name for file in ROOT.iterdir()]
     )
 
     parser.add_argument(
@@ -509,7 +477,9 @@ def main():
 
     try:
         shibe = Doge(tty, ns)
-        shibe.setup()
+        if not shibe.setup():
+            # We assume that setup() prints what went wrong.
+            return 1
         shibe.print_doge()
 
     except (UnicodeEncodeError, UnicodeDecodeError):
