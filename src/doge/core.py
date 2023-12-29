@@ -44,6 +44,14 @@ class Doge(object):
             doge = []
             max_doge = 15
 
+        if self.ns.density > 100:
+            sys.stderr.write('wow, density such over 100%, too high\n')
+            sys.exit(1)
+
+        if self.ns.density < 0:
+            sys.stderr.write('wow, density such negative, too low\n')
+            sys.exit(1)
+
         if self.tty.width < max_doge:
             # Shibe won't fit, so abort.
             sys.stderr.write('wow, such small terminal\n')
@@ -121,7 +129,11 @@ class Doge(object):
         # Calculate a random sampling of lines that are to have text applied
         # onto them. Return value is a sorted list of line index integers.
         linelen = len(self.lines)
-        affected = sorted(random.sample(range(linelen), int(linelen / 3.5)))
+
+        if self.ns.density == 0:
+            return
+
+        affected = sorted(random.sample(range(linelen), int(linelen * (self.ns.density / 100))))
 
         for i, target in enumerate(affected, start=1):
             line = self.lines[target]
@@ -441,6 +453,13 @@ def setup_arguments():
         '-mw', '--max-width',
         help='such max width',
         type=int,
+    )
+
+    parser.add_argument(
+        '-d', '--density',
+        help='such word density percent, max is 100, default is 30, wow',
+        type=float,
+        default=30,
     )
     return parser
 
