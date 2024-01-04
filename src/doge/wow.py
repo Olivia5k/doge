@@ -5,8 +5,11 @@ Please extend this file with more lvl=100 shibe wow.
 
 """
 
+import datetime as dt
 import random
 from collections import deque
+
+import dateutil.easter
 
 
 class DogeDeque(deque):
@@ -112,6 +115,15 @@ class FrequencyBasedDogeDeque(deque):
         super(FrequencyBasedDogeDeque, self).__init__(new_to_add)
 
 
+def easter_dates():
+    """Calculate the start and stop dates of Easter."""
+    this_year = dt.datetime.now().year
+    easter_day = dateutil.easter.easter(this_year)
+    start = easter_day - dt.timedelta(days=7)
+    stop = easter_day + dt.timedelta(days=1)
+    return ((start.month, start.day), (stop.month, stop.day))
+
+
 PREFIXES = DogeDeque(
     'wow', 'such', 'very', 'so much', 'many', 'lol', 'beautiful',
     'all the', 'the', 'most', 'very much', 'pretty', 'so',
@@ -178,9 +190,18 @@ SEASONS = {
         'pic': 'doge-xmas.txt',
         'words': (
             'christmas', 'xmas', 'candles', 'santa', 'merry', 'reindeers',
-            'gifts', 'jul', 'vacation', 'carol',
+            'gifts', 'jul', 'vacation', 'carol'
         )
     },
+    'easter': {
+        'dates': easter_dates(),
+        'pic': 'doge-easter.txt',
+        'words': (
+            'easter', 'bunni', 'playdoge bunni', 'pascha', 'passover', 'påsk',
+            'life=100', 'crusify', 'fastings', 'eggs', 'lamb', 'candy',
+            'easter bunni', 'easter eggs'
+        )
+    }
 
     # To be continued...
 }
