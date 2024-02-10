@@ -455,6 +455,7 @@ def main():
             "/usr/bin/locale"
         )
         return 1
+    return 0
 
 
 # wow very main
