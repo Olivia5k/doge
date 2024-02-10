@@ -326,60 +326,13 @@ class TTYHandler:
         self.pretty = True
 
     def setup(self):
-        self.height, self.width = self.get_tty_size()
+        self.width, self.height = shutil.get_terminal_size()
         self.in_is_tty = sys.stdin.isatty()
         self.out_is_tty = sys.stdout.isatty()
 
         self.pretty = self.out_is_tty
         if sys.platform == "win32" and os.getenv("TERM") == "xterm":
             self.pretty = True
-
-    def _tty_size_windows(self, handle):
-        try:
-            from ctypes import create_string_buffer, windll
-
-            h = windll.kernel32.GetStdHandle(handle)
-            buf = create_string_buffer(22)
-
-            if windll.kernel32.GetConsoleScreenBufferInfo(h, buf):
-                left, top, right, bottom = struct.unpack("4H", buf.raw[10:18])
-                return right - left + 1, bottom - top + 1
-        except:
-            pass
-
-    def _tty_size_linux(self, fd):
-        try:
-            import fcntl
-            import termios
-
-            return struct.unpack(
-                "hh", fcntl.ioctl(fd, termios.TIOCGWINSZ, struct.pack("hh", 0, 0))
-            )
-        except:
-            return
-
-    def get_tty_size(self):
-        """
-        Get the current terminal size without using a subprocess
-
-        http://stackoverflow.com/questions/566746
-        I have no clue what-so-fucking ever over how this works or why it
-        returns the size of the terminal in both cells and pixels. But hey, it
-        does.
-
-        """
-        if sys.platform == "win32":
-            # stdin, stdout, stderr = -10, -11, -12
-            ret = self._tty_size_windows(-10)
-            ret = ret or self._tty_size_windows(-11)
-            ret = ret or self._tty_size_windows(-12)
-        else:
-            # stdin, stdout, stderr = 0, 1, 2
-            ret = self._tty_size_linux(0)
-            ret = ret or self._tty_size_linux(1)
-            ret = ret or self._tty_size_linux(2)
-
-        return ret or (25, 80)
 
 
 def clean_len(s):
