@@ -3,6 +3,8 @@
 Please extend this file with more lvl=100 shibe wow.
 """
 
+# Copyright (C) 2013-2024 Olivia Thiderman
+
 import datetime as dt
 import random
 from collections import deque

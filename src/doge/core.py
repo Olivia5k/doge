@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# Copyright (C) 2013-2024 Olivia Thiderman
+
 """Wow print Shibe to terminal, such random words."""
 
 import argparse
