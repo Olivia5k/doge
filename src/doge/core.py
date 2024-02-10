@@ -1,22 +1,22 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import argparse
 import datetime
 import os
-import sys
-import re
 import random
+import re
 import struct
-import traceback
-import argparse
 import subprocess as sp
+import sys
+import traceback
 import unicodedata
 from importlib.resources import files
 
 from doge import wow
 
-ROOT = files('doge').joinpath('static')
-DEFAULT_DOGE = 'doge.txt'
+ROOT = files("doge").joinpath("static")
+DEFAULT_DOGE = "doge.txt"
 
 
 class Doge(object):
@@ -26,8 +26,7 @@ class Doge(object):
         self.doge_path = ROOT.joinpath(ns.doge_path or DEFAULT_DOGE)
         if ns.frequency:
             # such frequency based
-            self.words = \
-                wow.FrequencyBasedDogeDeque(*wow.WORD_LIST, step=ns.step)
+            self.words = wow.FrequencyBasedDogeDeque(*wow.WORD_LIST, step=ns.step)
         else:
             self.words = wow.DogeDeque(*wow.WORD_LIST)
 
@@ -45,27 +44,27 @@ class Doge(object):
             max_doge = 15
 
         if self.ns.density > 100:
-            sys.stderr.write('wow, density such over 100%, too high\n')
+            sys.stderr.write("wow, density such over 100%, too high\n")
             sys.exit(1)
 
         if self.ns.density < 0:
-            sys.stderr.write('wow, density such negative, too low\n')
+            sys.stderr.write("wow, density such negative, too low\n")
             sys.exit(1)
 
         if self.tty.width < max_doge:
             # Shibe won't fit, so abort.
-            sys.stderr.write('wow, such small terminal\n')
-            sys.stderr.write('no doge under {0} column\n'.format(max_doge))
+            sys.stderr.write("wow, such small terminal\n")
+            sys.stderr.write("no doge under {0} column\n".format(max_doge))
             return False
 
         # Check for prompt height so that we can fill the screen minus how high
         # the prompt will be when done.
-        prompt = os.environ.get('PS1', '').split('\n')
+        prompt = os.environ.get("PS1", "").split("\n")
         line_count = len(prompt) + 1
 
         # Create a list filled with empty lines and Shibe at the bottom.
         fill = range(self.tty.height - len(doge) - line_count)
-        self.lines = ['\n' for x in fill]
+        self.lines = ["\n" for x in fill]
         self.lines += doge
 
         # Try to fetch data fed thru stdin
@@ -101,24 +100,25 @@ class Doge(object):
         now = datetime.datetime.now()
 
         for season, data in wow.SEASONS.items():
-            start, end = data['dates']
+            start, end = data["dates"]
             start_dt = datetime.datetime(now.year, start[0], start[1])
 
             # Be sane if the holiday season spans over New Year's day.
             end_dt = datetime.datetime(
-                now.year + (start[0] > end[0] and 1 or 0), end[0], end[1])
+                now.year + (start[0] > end[0] and 1 or 0), end[0], end[1]
+            )
 
             if start_dt <= now <= end_dt:
                 # Wow, much holiday!
                 return self.load_season(season)
 
     def load_season(self, season_key):
-        if season_key == 'none':
+        if season_key == "none":
             return
 
         season = wow.SEASONS[season_key]
-        self.doge_path = ROOT.joinpath(season['pic'])
-        self.words.extend(season['words'])
+        self.doge_path = ROOT.joinpath(season["pic"])
+        self.words.extend(season["words"])
 
     def apply_text(self):
         """
@@ -133,17 +133,19 @@ class Doge(object):
         if self.ns.density == 0:
             return
 
-        affected = sorted(random.sample(range(linelen), int(linelen * (self.ns.density / 100))))
+        affected = sorted(
+            random.sample(range(linelen), int(linelen * (self.ns.density / 100)))
+        )
 
         for i, target in enumerate(affected, start=1):
             line = self.lines[target]
-            line = re.sub('\n', ' ', line)
+            line = re.sub("\n", " ", line)
 
             word = self.words.get()
 
             # If first or last line, or a random selection, use standalone wow.
             if i == 1 or i == len(affected) or random.choice(range(20)) == 0:
-                word = 'wow'
+                word = "wow"
 
             # Generate a new DogeMessage, possibly based on a word.
             self.lines[target] = DogeMessage(self, line, word).generate()
@@ -157,9 +159,9 @@ class Doge(object):
         """
 
         if self.ns.no_shibe:
-            return ['']
+            return [""]
 
-        return self.doge_path.read_text(encoding='utf-8').splitlines(keepends=True)
+        return self.doge_path.read_text(encoding="utf-8").splitlines(keepends=True)
 
     def get_real_data(self):
         """
@@ -168,24 +170,24 @@ class Doge(object):
         """
 
         ret = []
-        username = os.environ.get('USER')
+        username = os.environ.get("USER")
         if username:
             ret.append(username)
 
-        editor = os.environ.get('EDITOR')
+        editor = os.environ.get("EDITOR")
         if editor:
-            editor = editor.split('/')[-1]
+            editor = editor.split("/")[-1]
             ret.append(editor)
 
         # OS, hostname and... architechture (because lel)
-        if hasattr(os, 'uname'):
+        if hasattr(os, "uname"):
             uname = os.uname()
             ret.append(uname[0])
             ret.append(uname[1])
             ret.append(uname[4])
 
         # Grab actual files from $HOME.
-        filenames = os.listdir(os.environ.get('HOME'))
+        filenames = os.listdir(os.environ.get("HOME"))
         if filenames:
             ret.append(random.choice(filenames))
 
@@ -196,8 +198,9 @@ class Doge(object):
         self.words.extend(map(str.lower, ret))
 
     def filter_words(self, words, stopwords, min_length):
-        return [word for word in words if
-                len(word) >= min_length and word not in stopwords]
+        return [
+            word for word in words if len(word) >= min_length and word not in stopwords
+        ]
 
     def get_stdin_data(self):
         """
@@ -215,13 +218,15 @@ class Doge(object):
 
         # If we have stdin data, we should remove everything else!
         self.words.clear()
-        word_list = [match.group(0)
-                     for line in stdin_lines
-                     for match in rx_word.finditer(line.lower())]
+        word_list = [
+            match.group(0)
+            for line in stdin_lines
+            for match in rx_word.finditer(line.lower())
+        ]
         if self.ns.filter_stopwords:
             word_list = self.filter_words(
-                word_list, stopwords=wow.STOPWORDS,
-                min_length=self.ns.min_length)
+                word_list, stopwords=wow.STOPWORDS, min_length=self.ns.min_length
+            )
 
         self.words.extend(word_list)
 
@@ -237,15 +242,15 @@ class Doge(object):
 
         try:
             # POSIX ps, so it should work in most environments where doge would
-            p = sp.Popen(['ps', '-A', '-o', 'comm='], stdout=sp.PIPE)
+            p = sp.Popen(["ps", "-A", "-o", "comm="], stdout=sp.PIPE)
             output, error = p.communicate()
 
-            output = output.decode('utf-8')
+            output = output.decode("utf-8")
 
-            for comm in output.split('\n'):
-                name = comm.split('/')[-1]
+            for comm in output.split("\n"):
+                name = comm.split("/")[-1]
                 # Filter short and weird ones
-                if name and len(name) >= 2 and ':' not in name:
+                if name and len(name) >= 2 and ":" not in name:
                     procs.add(name)
 
         finally:
@@ -273,16 +278,16 @@ class DogeMessage(object):
         self.word = word
 
     def generate(self):
-        if self.word == 'wow':
+        if self.word == "wow":
             # Standalone wow. Don't apply any prefixes or suffixes.
             msg = self.word
         else:
             # Add a prefix.
-            msg = u'{0} {1}'.format(wow.PREFIXES.get(), self.word)
+            msg = "{0} {1}".format(wow.PREFIXES.get(), self.word)
 
             # Seldomly add a suffix as well.
             if random.choice(range(15)) == 0:
-                msg += u' {0}'.format(wow.SUFFIXES.get())
+                msg += " {0}".format(wow.SUFFIXES.get())
 
         # Calculate the maximum possible spacer
         interval = self.tty.width - onscreen_len(msg)
@@ -296,16 +301,16 @@ class DogeMessage(object):
             return self.occupied + "\n"
 
         # Apply spacing
-        msg = u'{0}{1}'.format(' ' * random.choice(range(interval)), msg)
+        msg = "{0}{1}".format(" " * random.choice(range(interval)), msg)
 
         if self.tty.pretty:
             # Apply pretty ANSI color coding.
-            msg = u'\x1b[1m\x1b[38;5;{0}m{1}\x1b[39m\x1b[0m'.format(
+            msg = "\x1b[1m\x1b[38;5;{0}m{1}\x1b[39m\x1b[0m".format(
                 wow.COLORS.get(), msg
             )
 
         # Line ends are pretty cool guys, add one of those.
-        return u'{0}{1}\n'.format(self.occupied, msg)
+        return "{0}{1}\n".format(self.occupied, msg)
 
 
 class TTYHandler(object):
@@ -315,18 +320,18 @@ class TTYHandler(object):
         self.out_is_tty = sys.stdout.isatty()
 
         self.pretty = self.out_is_tty
-        if sys.platform == 'win32' and os.getenv('TERM') == 'xterm':
+        if sys.platform == "win32" and os.getenv("TERM") == "xterm":
             self.pretty = True
 
     def _tty_size_windows(self, handle):
         try:
-            from ctypes import windll, create_string_buffer
+            from ctypes import create_string_buffer, windll
 
             h = windll.kernel32.GetStdHandle(handle)
             buf = create_string_buffer(22)
 
             if windll.kernel32.GetConsoleScreenBufferInfo(h, buf):
-                left, top, right, bottom = struct.unpack('4H', buf.raw[10:18])
+                left, top, right, bottom = struct.unpack("4H", buf.raw[10:18])
                 return right - left + 1, bottom - top + 1
         except:
             pass
@@ -337,10 +342,7 @@ class TTYHandler(object):
             import termios
 
             return struct.unpack(
-                'hh',
-                fcntl.ioctl(
-                    fd, termios.TIOCGWINSZ, struct.pack('hh', 0, 0)
-                )
+                "hh", fcntl.ioctl(fd, termios.TIOCGWINSZ, struct.pack("hh", 0, 0))
             )
         except:
             return
@@ -355,7 +357,7 @@ class TTYHandler(object):
         does.
 
         """
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             # stdin, stdout, stderr = -10, -11, -12
             ret = self._tty_size_windows(-10)
             ret = ret or self._tty_size_windows(-11)
@@ -375,7 +377,7 @@ def clean_len(s):
 
     """
 
-    s = re.sub(r'\x1b\[[0-9;]*m', '', s)
+    s = re.sub(r"\x1b\[[0-9;]*m", "", s)
 
     return len(s)
 
@@ -389,75 +391,70 @@ def onscreen_len(s):
 
     length = 0
     for ch in s:
-        length += 2 if unicodedata.east_asian_width(ch) == 'W' else 1
+        length += 2 if unicodedata.east_asian_width(ch) == "W" else 1
 
     return length
 
 
 def setup_arguments():
-    parser = argparse.ArgumentParser('doge')
+    parser = argparse.ArgumentParser("doge")
 
     parser.add_argument(
-        '--shibe',
-        help='wow shibe file',
-        dest='doge_path',
-        choices=[file.name for file in ROOT.iterdir()]
+        "--shibe",
+        help="wow shibe file",
+        dest="doge_path",
+        choices=[file.name for file in ROOT.iterdir()],
+    )
+
+    parser.add_argument("--no-shibe", action="store_true", help="wow no doge show :(")
+
+    parser.add_argument(
+        "--season",
+        help="wow shibe season congrate",
+        choices=sorted(wow.SEASONS.keys()) + ["none"],
     )
 
     parser.add_argument(
-        '--no-shibe',
-        action="store_true",
-        help="wow no doge show :("
+        "-f", "--frequency", help="such frequency based", action="store_true"
     )
 
     parser.add_argument(
-        '--season',
-        help='wow shibe season congrate',
-        choices=sorted(wow.SEASONS.keys()) + ['none']
-    )
-
-    parser.add_argument(
-        '-f', '--frequency',
-        help='such frequency based',
-        action='store_true'
-    )
-
-    parser.add_argument(
-        '--step',
-        help='beautiful step',  # how much to step
+        "--step",
+        help="beautiful step",  # how much to step
         #  between ranks in FrequencyBasedDogeDeque
         type=int,
         default=2,
     )
 
     parser.add_argument(
-        '--min_length',
-        help='pretty minimum',  # minimum length of a word
+        "--min_length",
+        help="pretty minimum",  # minimum length of a word
         type=int,
         default=1,
     )
 
     parser.add_argument(
-        '-s', '--filter_stopwords',
-        help='many words lol',
-        action='store_true'
+        "-s", "--filter_stopwords", help="many words lol", action="store_true"
     )
 
     parser.add_argument(
-        '-mh', '--max-height',
-        help='such max height',
+        "-mh",
+        "--max-height",
+        help="such max height",
         type=int,
     )
 
     parser.add_argument(
-        '-mw', '--max-width',
-        help='such max width',
+        "-mw",
+        "--max-width",
+        help="such max width",
         type=int,
     )
 
     parser.add_argument(
-        '-d', '--density',
-        help='such word density percent, max is 100, default is 30, wow',
+        "-d",
+        "--density",
+        help="such word density percent, max is 100, default is 30, wow",
         type=float,
         default=30,
     )
@@ -489,15 +486,15 @@ def main():
         traceback.print_exc()
         print()
 
-        lang = os.environ.get('LANG')
+        lang = os.environ.get("LANG")
         if not lang:
-            print('wow error: broken $LANG, so fail')
+            print("wow error: broken $LANG, so fail")
             return 3
 
-        if not lang.endswith('UTF-8'):
+        if not lang.endswith("UTF-8"):
             print(
-                "wow error: locale '{0}' is not UTF-8.  ".format(lang) +
-                "doge needs UTF-8 to print Shibe.  Please set your system to "
+                "wow error: locale '{0}' is not UTF-8.  ".format(lang)
+                + "doge needs UTF-8 to print Shibe.  Please set your system to "
                 "use a UTF-8 locale."
             )
             return 2
