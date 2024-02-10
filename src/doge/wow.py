@@ -171,15 +171,15 @@ COLORS = DogeDeque(
     *(
         int(x)
         for x in """
-    23 24 25 26 27 29 30 31 32 33 35 36 37 38 39 41 42 43 44 45 47 48 49 50 51
-    58 59 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85
-    86 87 88 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111
-    112 113 114 115 116 117 118 119 120 121 122 123 130 131 132 133 134 135 136
-    137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 154 155
-    156 157 158 159 162 166 167 168 169 170 171 172 173 174 175 176 177 178 179
-    180 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 197 202 203
-    204 205 206 207 208 209 210 211 212 213 214 215 216 217 218 219 220 221 222
-    223 224 225 226 227 228""".split()
+        23 24 25 26 27 29 30 31 32 33 35 36 37 38 39 41 42 43 44 45 47 48 49 50
+        51 58 59 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83
+        84 85 86 87 88 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109
+        110 111 112 113 114 115 116 117 118 119 120 121 122 123 130 131 132 133
+        134 135 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151
+        152 153 154 155 156 157 158 159 162 166 167 168 169 170 171 172 173 174
+        175 176 177 178 179 180 181 182 183 184 185 186 187 188 189 190 191 192
+        193 194 195 197 202 203 204 205 206 207 208 209 210 211 212 213 214 215
+        216 217 218 219 220 221 222 223 224 225 226 227 228""".split()
     )
 )
 
@@ -270,7 +270,7 @@ STOPWORDS = [
     because become becomes becoming been before beforehand begin behind being
     believe below beside besides best better between beyond both brief but by
     came can cannot cant can't caption cause causes certain certainly changes
-    clearly c'mon co co.  com come comes concerning consequently consider
+    clearly c'mon co co. com come comes concerning consequently consider
     considering contain containing contains corresponding could couldn't course
     c's currently dare daren't definitely described despite did didn't different
     directly do does doesn't doing done don't down downwards during each edu eg
@@ -283,7 +283,7 @@ STOPWORDS = [
     haven't having he he'd he'll hello help hence her here hereafter hereby
     herein here's hereupon hers herself he's hi him himself his hither hopefully
     how howbeit however hundred i'd ie if ignored i'll i'm immediate in inasmuch
-    inc inc.  indeed indicate indicated indicates inner inside insofar instead
+    inc inc. indeed indicate indicated indicates inner inside insofar instead
     into inward is isn't it it'd it'll its it's itself i've just k keep keeps
     kept know known knows last lately later latter latterly least less lest let
     let's like liked likely likewise little look looking looks low lower ltd
