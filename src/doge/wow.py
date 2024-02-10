@@ -1,8 +1,6 @@
-"""
-Words and static data
+"""Define words and static data.
 
 Please extend this file with more lvl=100 shibe wow.
-
 """
 
 import datetime as dt
@@ -14,14 +12,12 @@ from dateutil import tz
 
 
 class DogeDeque(deque):
-    """
-    A doge deque. A doqe, if you may.
+    """A doge deque. A doqe, if you may.
 
     Because random is random, just using a random choice from the static lists
     below there will always be some repetition in the output. This collection
     will instead shuffle the list upon init, and act as a rotating deque
     whenever an item is gotten from it.
-
     """
 
     def __init__(self, *args, **_kwargs):
@@ -31,12 +27,11 @@ class DogeDeque(deque):
         super().__init__(args)
 
     def get(self):
-        """
-        Get one item. This will rotate the deque one step. Repeated gets will
+        """Get one item and prepare the next.
+
+        This will rotate the deque one step. Repeated gets will
         return different items.
-
         """
-
         self.doge_index += 1
 
         # If we've gone through the entire deque once, shuffle it again to
@@ -52,19 +47,17 @@ class DogeDeque(deque):
             return "wow"
 
     def extend(self, iterable):
+        """Extend and shuffle."""
         # Whenever we extend the list, make sure to shuffle in the new items!
         super().extend(iterable)
         self.shuffle()
 
     def shuffle(self):
-        """
-        Shuffle the deque
+        """Shuffle the deque.
 
         Deques themselves do not support this, so this will make all items into
         a list, shuffle that list, clear the deque, and then re-init the deque.
-
         """
-
         args = list(self)
         random.shuffle(args)
 
@@ -73,6 +66,8 @@ class DogeDeque(deque):
 
 
 class FrequencyBasedDogeDeque(deque):
+    """A doge deque based on word frequencies."""
+
     def __init__(self, *args, **kwargs):
         self.doge_index = 0
         self.step = kwargs.get("step", 2)
@@ -82,13 +77,12 @@ class FrequencyBasedDogeDeque(deque):
         super().__init__(args)
 
     def shuffle(self):
-        pass
+        """Shuffle the deque."""
 
     def get(self):
-        """
-        Get one item and prepare to get an item with lower
-        rank on the next call.
+        """Get one item and prepare the next.
 
+        Prepare to get an item with lower rank on the next call.
         """
         if len(self) < 1:
             return "wow"
@@ -104,6 +98,7 @@ class FrequencyBasedDogeDeque(deque):
         return res
 
     def extend(self, iterable):
+        """Extend and recalculate."""
         existing = list(self)
         merged = existing + list(iterable)
         self.clear()

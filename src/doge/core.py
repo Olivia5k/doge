@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+"""Wow print Shibe to terminal, such random words."""
+
 import argparse
 import datetime
 import os
@@ -21,6 +23,8 @@ DEFAULT_DOGE = "doge.txt"
 
 
 class Doge:
+    """Make Shibe and pretty random words."""
+
     MAX_PERCENT = 100
     MIN_PS_LEN = 2
 
@@ -36,6 +40,7 @@ class Doge:
             self.words = wow.DogeDeque(*wow.WORD_LIST)
 
     def setup(self):
+        """Check args and seasons, load data, and decorate shibe."""
         # Setup seasonal data
         self.setup_seasonal()
 
@@ -84,15 +89,14 @@ class Doge:
         return True
 
     def setup_seasonal(self):
-        """
+        """Handle seasonal holidays.
+
         Check if there's some seasonal holiday going on, setup appropriate
         Shibe picture and load holiday words.
 
         Note: if there are two or more holidays defined for a certain date,
         the first one takes precedence.
-
         """
-
         # If we've specified a season, just run that one
         if self.ns.season:
             return self.load_season(self.ns.season)
@@ -120,6 +124,7 @@ class Doge:
         return None
 
     def load_season(self, season_key):
+        """Try to load a season, unless 'none' given."""
         if season_key == "none":
             return
 
@@ -128,11 +133,7 @@ class Doge:
         self.words.extend(season["words"])
 
     def apply_text(self):
-        """
-        Apply text around doge
-
-        """
-
+        """Apply text around doge."""
         # Calculate a random sampling of lines that are to have text applied
         # onto them. Return value is a sorted list of line index integers.
         linelen = len(self.lines)
@@ -158,24 +159,17 @@ class Doge:
             self.lines[target] = DogeMessage(self, line, word).generate()
 
     def load_doge(self):
-        """
-        Return pretty ASCII Shibe.
+        """Return pretty ASCII Shibe.
 
         wow
-
         """
-
         if self.ns.no_shibe:
             return [""]
 
         return self.doge_path.read_text(encoding="utf-8").splitlines(keepends=True)
 
     def get_real_data(self):
-        """
-        Grab actual data from the system
-
-        """
-
+        """Grab actual data from the system."""
         ret = []
         username = os.environ.get("USER")
         if username:
@@ -204,16 +198,13 @@ class Doge:
 
     @staticmethod
     def filter_words(words, stopwords, min_length):
+        """Filter out unwanted words."""
         return [
             word for word in words if len(word) >= min_length and word not in stopwords
         ]
 
     def get_stdin_data(self):
-        """
-        Get words from stdin.
-
-        """
-
+        """Get words from stdin."""
         if self.tty.in_is_tty:
             # No pipez found
             return False
@@ -239,11 +230,7 @@ class Doge:
         return True
 
     def get_processes(self):
-        """
-        Grab a shuffled list of all currently running process names
-
-        """
-
+        """Grab a shuffled list of all currently running process names."""
         procs = set()
 
         try:
@@ -266,16 +253,14 @@ class Doge:
             return proc_list
 
     def print_doge(self):
+        """Print doge to terminal."""
         for line in self.lines:
             sys.stdout.write(line)
         sys.stdout.flush()
 
 
 class DogeMessage:
-    """
-    A randomly placed and randomly colored message
-
-    """
+    """Make a randomly placed and randomly colored message."""
 
     def __init__(self, doge, occupied, word):
         self.doge = doge
@@ -284,6 +269,7 @@ class DogeMessage:
         self.word = word
 
     def generate(self):
+        """Add a word to a line, with color, random prefix and suffix."""
         if self.word == "wow":
             # Standalone wow. Don't apply any prefixes or suffixes.
             msg = self.word
@@ -318,6 +304,8 @@ class DogeMessage:
 
 
 class TTYHandler:
+    """Get terminal properties."""
+
     def __init__(self):
         self.height = 25
         self.width = 80
@@ -326,6 +314,7 @@ class TTYHandler:
         self.pretty = True
 
     def setup(self):
+        """Calculate terminal properties."""
         self.width, self.height = shutil.get_terminal_size()
         self.in_is_tty = sys.stdin.isatty()
         self.out_is_tty = sys.stdout.isatty()
@@ -336,23 +325,17 @@ class TTYHandler:
 
 
 def clean_len(s):
-    """
-    Calculate the length of a string without it's color codes
-
-    """
-
+    """Calculate the length of a string without its color codes."""
     s = re.sub(r"\x1b\[[0-9;]*m", "", s)
 
     return len(s)
 
 
 def onscreen_len(s):
-    """
-    Calculate the length of a unicode string on screen,
-    accounting for double-width characters
+    """Calculate the length of a unicode string on screen.
 
+    Also account for double-width characters.
     """
-
     length = 0
     for ch in s:
         length += 2 if unicodedata.east_asian_width(ch) == "W" else 1
@@ -361,6 +344,7 @@ def onscreen_len(s):
 
 
 def setup_arguments():
+    """Make an ArgumentParser."""
     parser = argparse.ArgumentParser("doge")
 
     parser.add_argument(
@@ -426,6 +410,7 @@ def setup_arguments():
 
 
 def main():
+    """Run the main CLI script."""
     tty = TTYHandler()
     tty.setup()
 
