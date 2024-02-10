@@ -165,10 +165,12 @@ SUFFIXES = DogeDeque("wow", "lol", "hax", "plz", "lvl=100")
 
 # A subset of the 255 color cube with the darkest colors removed. This is
 # suited for use on dark terminals. Lighter colors are still present so some
-# colors might be semi-unreadabe on lighter backgrounds.
+# colors might be semi-unreadable on lighter backgrounds.
 #
 # If you see this and use a light terminal, a pull request with a set that
 # works well on a light terminal would be awesome.
+#
+# The "1 2 3".split() trick keeps the line count low, even with black auto-formatting.
 COLORS = DogeDeque(
     *(
         int(x)
