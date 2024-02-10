@@ -10,6 +10,7 @@ import random
 from collections import deque
 
 import dateutil.easter
+from dateutil import tz
 
 
 class DogeDeque(deque):
@@ -23,11 +24,11 @@ class DogeDeque(deque):
 
     """
 
-    def __init__(self, *args, **kwargs):
-        self.index = 0
+    def __init__(self, *args, **_kwargs):
+        self.doge_index = 0
         args = list(args)
         random.shuffle(args)
-        super(DogeDeque, self).__init__(args)
+        super().__init__(args)
 
     def get(self):
         """
@@ -36,23 +37,23 @@ class DogeDeque(deque):
 
         """
 
-        self.index += 1
+        self.doge_index += 1
 
         # If we've gone through the entire deque once, shuffle it again to
         # simulate ever-flowing random. self.shuffle() will run __init__(),
         # which will reset the index to 0.
-        if self.index == len(self):
+        if self.doge_index == len(self):
             self.shuffle()
 
         self.rotate(1)
         try:
             return self[0]
-        except:
+        except IndexError:
             return "wow"
 
     def extend(self, iterable):
         # Whenever we extend the list, make sure to shuffle in the new items!
-        super(DogeDeque, self).extend(iterable)
+        super().extend(iterable)
         self.shuffle()
 
     def shuffle(self):
@@ -68,20 +69,17 @@ class DogeDeque(deque):
         random.shuffle(args)
 
         self.clear()
-        super(DogeDeque, self).__init__(args)
+        super().__init__(args)
 
 
 class FrequencyBasedDogeDeque(deque):
     def __init__(self, *args, **kwargs):
-        self.index = 0
-        if "step" in kwargs:
-            self.step = kwargs["step"]
-        else:
-            self.step = 2
+        self.doge_index = 0
+        self.step = kwargs.get("step", 2)
         args = list(args)
         # sort words by frequency
-        args = sorted(set(args), key=lambda x: args.count(x))
-        super(FrequencyBasedDogeDeque, self).__init__(args)
+        args = sorted(set(args), key=args.count)
+        super().__init__(args)
 
     def shuffle(self):
         pass
@@ -95,13 +93,13 @@ class FrequencyBasedDogeDeque(deque):
         if len(self) < 1:
             return "wow"
 
-        if self.index >= len(self):
-            self.index = 0
+        if self.doge_index >= len(self):
+            self.doge_index = 0
 
         step = random.randint(1, min(self.step, len(self)))
 
         res = self[0]
-        self.index += step
+        self.doge_index += step
         self.rotate(step)
         return res
 
@@ -109,14 +107,14 @@ class FrequencyBasedDogeDeque(deque):
         existing = list(self)
         merged = existing + list(iterable)
         self.clear()
-        self.index = 0
-        new_to_add = sorted(set(merged), key=lambda x: merged.count(x))
-        super(FrequencyBasedDogeDeque, self).__init__(new_to_add)
+        self.doge_index = 0
+        new_to_add = sorted(set(merged), key=merged.count)
+        super().__init__(new_to_add)
 
 
 def easter_dates():
     """Calculate the start and stop dates of Easter."""
-    this_year = dt.datetime.now().year
+    this_year = dt.datetime.now(tz=tz.tzlocal()).year
     easter_day = dateutil.easter.easter(this_year)
     start = easter_day - dt.timedelta(days=7)
     stop = easter_day + dt.timedelta(days=1)
