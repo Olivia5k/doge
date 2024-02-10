@@ -138,13 +138,13 @@ class Doge:
         """Apply text around doge."""
         # Calculate a random sampling of lines that are to have text applied
         # onto them. Return value is a sorted list of line index integers.
-        linelen = len(self.lines)
+        line_len = len(self.lines)
 
         if self.ns.density == 0:
             return
 
         affected = sorted(
-            random.sample(range(linelen), int(linelen * (self.ns.density / 100)))
+            random.sample(range(line_len), int(line_len * (self.ns.density / 100)))
         )
 
         for i, target in enumerate(affected, start=1):
@@ -233,7 +233,7 @@ class Doge:
 
     def get_processes(self):
         """Grab a shuffled list of all currently running process names."""
-        procs = set()
+        processes = set()
 
         try:
             # POSIX ps, so it should work in most environments where doge would
@@ -246,11 +246,11 @@ class Doge:
                 name = comm.split("/")[-1]
                 # Filter short and weird ones
                 if name and len(name) >= self.MIN_PS_LEN and ":" not in name:
-                    procs.add(name)
+                    processes.add(name)
 
         finally:
             # Either it executed properly or no ps was found.
-            proc_list = list(procs)
+            proc_list = list(processes)
             random.shuffle(proc_list)
             return proc_list
 
@@ -295,7 +295,8 @@ class DogeMessage:
             return self.occupied + "\n"
 
         # Apply spacing
-        msg = "{}{}".format(" " * random.choice(range(interval)), msg)
+        spacer = " " * random.choice(range(interval))
+        msg = f"{spacer}{msg}"
 
         if self.tty.pretty:
             # Apply pretty ANSI color coding.
