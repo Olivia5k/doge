@@ -8,7 +8,7 @@ import random
 from collections import deque
 
 import dateutil.easter
-from dateutil import tz
+import dateutil.tz
 
 
 class DogeDeque(deque):
@@ -109,7 +109,7 @@ class FrequencyBasedDogeDeque(deque):
 
 def easter_dates():
     """Calculate the start and stop dates of Easter."""
-    this_year = dt.datetime.now(tz=tz.tzlocal()).year
+    this_year = dt.datetime.now(tz=dateutil.tz.tzlocal()).year
     easter_day = dateutil.easter.easter(this_year)
     start = easter_day - dt.timedelta(days=7)
     stop = easter_day + dt.timedelta(days=1)
