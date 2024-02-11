@@ -259,12 +259,38 @@ SEASONS = {
             "easter eggs",
         ),
     },
+    "earth": {
+        "dates": ((4, 16), (4, 22)),
+        "pic": "doge-earth.txt",
+        "words": (
+            "earth day",
+            "earth",
+            "planet",
+            "trees",
+            "eco friend",
+            "green",
+            "reduce",
+            "reuse",
+            "recycle",
+            "renew",
+            "energy",
+            "conservate",
+            "nature",
+            "sustain",
+            "planet love",
+            "climate",
+            "environment",
+            "aware",
+            "carbon",
+            "sun power",
+        ),
+    },
     # To be continued...
 }
 
+# Using "1 2 3".split() keeps the line count low, even with black auto-formatting.
 STOPWORDS = [
     """
-
     able about above abroad according accordingly across actually adj after
     afterwards again against ago ahead ain't all allow allows almost alone along
     alongside already also although always am amid amidst among amongst an and
@@ -389,6 +415,5 @@ STOPWORDS = [
 
     I a about an are as at be by com for from how in is it of on or that the
     this to was what when where who will with the www
-
     """.split()
 ]
