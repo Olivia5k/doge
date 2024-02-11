@@ -193,6 +193,26 @@ COLORS = DogeDeque(
 # congratulations, so do whatever complex math you need to make sure Shibe
 # celebrates with you!
 SEASONS = {
+    "valentine": {
+        "dates": ((2, 12), (2, 15)),
+        "pic": "doge-valentine.txt",
+        "words": (
+            "valentine",
+            "love",
+            "romantic",
+            "chocolate",
+            "heart",
+            "flower",
+            "date night",
+            "kiss",
+            "cuddle",
+            "hugs",
+            "sweet",
+            "affection",
+            "roses",
+            "sweetheart",
+        ),
+    },
     "halloween": {
         "dates": ((10, 17), (10, 31)),
         "pic": "doge-halloween.txt",
