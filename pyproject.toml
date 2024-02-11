@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "doge"
-version = "3.7.0"
+version = "3.7.1"
 description = "wow very terminal doge"
 authors = [{ name = "Olivia Thiderman", email = "olivia@thiderman.org" }]
 readme = "README.md"
@@ -28,3 +28,24 @@ Homepage = "https://github.com/thiderman/doge"
 
 [project.scripts]
 doge = "doge.core:main"
+
+[tool.ruff]
+extend-exclude = ["pdbsh/rpcc_client.py"]
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D107", "D203", "D213", "COM812", "T20", "S311"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["D104"]
+
+[tool.ruff.lint.flake8-annotations]
+ignore-fully-untyped = true
+
+[tool.ruff.lint.flake8-type-checking]
+quote-annotations = true
+
+[tool.ruff.format]
+docstring-code-format = true
