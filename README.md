@@ -1,6 +1,12 @@
+![PyPI - Version](https://img.shields.io/pypi/v/doge)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/doge)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/doge)
+[![latest packaged version(s)](https://repology.org/badge/latest-versions/doge.svg?exclude_sources=pypi)](https://repology.org/project/doge/versions)
+[![Packaging status](https://repology.org/badge/tiny-repos/doge.svg)](https://repology.org/project/doge/versions)
+
 # doge
 
-![wow screenshot](example_doge.png)
+![wow screenshot](https://raw.githubusercontent.com/Olivia5k/doge/main/example_doge.png)
 
 **doge** is a simple motd script based on the slightly stupid but very funny
 [doge meme][doge]. It prints random grammatically incorrect statements that are
