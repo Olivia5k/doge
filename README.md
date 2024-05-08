@@ -1,10 +1,15 @@
-![PyPI - Version](https://img.shields.io/pypi/v/doge)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/doge)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/doge)
-[![latest packaged version(s)](https://repology.org/badge/latest-versions/doge.svg?exclude_sources=pypi)](https://repology.org/project/doge/versions)
-[![Packaging status](https://repology.org/badge/tiny-repos/doge.svg)](https://repology.org/project/doge/versions)
-
 # doge
+
+[![GitHub License](https://img.shields.io/github/license/Olivia5k/doge)](https://github.com/Olivia5k/doge?tab=MIT-1-ov-file#readme)
+[![PyPI - Version](https://img.shields.io/pypi/v/doge)][doge_pypi]
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/doge)][doge_pypi]
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/doge)][doge_pypi]
+[![latest packaged version(s)](https://repology.org/badge/latest-versions/doge.svg?exclude_sources=pypi)][doge_rep]
+[![Packaging status](https://repology.org/badge/tiny-repos/doge.svg)][doge_rep]
+
+ [doge_pypi]: https://pypi.org/project/doge/ "doge (PyPI)"
+ [doge_rep]:  https://repology.org/project/doge/versions "Versions for doge (Repology)"
+
 
 ![wow screenshot](https://raw.githubusercontent.com/Olivia5k/doge/main/example_doge.png)
 
