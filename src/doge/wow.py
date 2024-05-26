@@ -305,6 +305,23 @@ SEASONS = {
             "sun power",
         ),
     },
+    "kabosu": {
+        "dates": ((5, 24), (5, 26)),
+        "pic": "doge-kabosu.txt",
+        "words": (
+            "sweet kabosu",
+            "missed",
+            "love",
+            "memory",
+            "cheer",
+            "none forget",
+            "eternal doge",
+            "brightest doge",
+            "smiles",
+            "star in sky",
+            "puppy",
+        ),
+    },
     # To be continued...
 }
 
