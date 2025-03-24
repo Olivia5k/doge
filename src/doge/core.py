@@ -207,7 +207,7 @@ class Doge:
 
     def get_stdin_data(self):
         """Get words from stdin."""
-        if self.tty.in_is_tty:
+        if not self.tty.stdin_preferred:
             # No pipez found
             return False
 
@@ -312,14 +312,14 @@ class TTYHandler:
     def __init__(self):
         self.height = 25
         self.width = 80
-        self.in_is_tty = True
+        self.stdin_preferred = False
         self.out_is_tty = True
         self.pretty = True
 
     def setup(self):
         """Calculate terminal properties."""
         self.width, self.height = shutil.get_terminal_size()
-        self.in_is_tty = sys.stdin.isatty()
+        self.stdin_preferred = (not sys.stdin.isatty()) if sys.stdin else False
         self.out_is_tty = sys.stdout.isatty()
 
         self.pretty = self.out_is_tty
