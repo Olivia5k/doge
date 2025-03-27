@@ -21,7 +21,10 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-dependencies = ["python-dateutil>=2.8.2"]
+dependencies = [
+    "fullmoon>=1.0.2",
+    "python-dateutil>=2.8.2",
+]
 
 [project.urls]
 Homepage = "https://github.com/thiderman/doge"
