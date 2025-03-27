@@ -11,6 +11,7 @@ from collections import deque
 
 import dateutil.easter
 import dateutil.tz
+import fullmoon
 
 
 class DogeDeque(deque):
@@ -115,6 +116,18 @@ def easter_dates():
     easter_day = dateutil.easter.easter(this_year)
     start = easter_day - dt.timedelta(days=7)
     stop = easter_day + dt.timedelta(days=1)
+    return ((start.month, start.day), (stop.month, stop.day))
+
+
+def moon_dates(look_back_days=14, margin_time_hours=12):
+    """Calculate the nearest full moon date."""
+    now = dt.datetime.now(tz=dateutil.tz.tzlocal())
+    moon_calculation_start = now - dt.timedelta(days=look_back_days)
+    full_moon_finder = fullmoon.NextFullMoon()
+    full_moon_finder.set_origin_datetime(moon_calculation_start)
+    calculated_full_moon = full_moon_finder.next_full_moon()
+    start = calculated_full_moon - dt.timedelta(hours=margin_time_hours)
+    stop = calculated_full_moon + dt.timedelta(hours=margin_time_hours)
     return ((start.month, start.day), (stop.month, stop.day))
 
 
@@ -320,6 +333,26 @@ SEASONS = {
             "smiles",
             "star in sky",
             "puppy",
+        ),
+    },
+    "moon": {
+        "dates": moon_dates(),
+        "pic": "doge-moon.txt",
+        "words": (
+            "hi-res 4K moon",
+            "glow",
+            "night lamp",
+            "lunar",
+            "orbit",
+            "werewolf",
+            "awoooo",
+            "big cheese",
+            "sky donut",
+            "space boop",
+            "NASA",
+            "eclipse",
+            "crater",
+            "moon.exe",
         ),
     },
     # To be continued...
