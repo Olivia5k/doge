@@ -7,11 +7,24 @@ name = "doge"
 version = "3.8.0"
 source = { editable = "." }
 dependencies = [
+    { name = "fullmoon" },
     { name = "python-dateutil" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "python-dateutil", specifier = ">=2.8.2" }]
+requires-dist = [
+    { name = "fullmoon", specifier = ">=1.0.2" },
+    { name = "python-dateutil", specifier = ">=2.8.2" },
+]
+
+[[package]]
+name = "fullmoon"
+version = "1.0.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cd/fc/a5794b83e77dd37f24e6d77f322bf9a8c017c165af50811ce40a9914dbab/fullmoon-1.0.2.tar.gz", hash = "sha256:595cf49dad6ff37751a55d9b6599d1ecbe200e6d8ac113faea1eb11f6e17bf86", size = 6041 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/81/5a/538d906a9cb3a0ef1bade173fc1dcbe2559cd0ccda4d956c9b5a23b47644/fullmoon-1.0.2-py3-none-any.whl", hash = "sha256:c9730dc9eebb151605887e611e16fba3e386cd242da81ce60a8e8ccfa426dfb4", size = 7248 },
+]
 
 [[package]]
 name = "python-dateutil"
