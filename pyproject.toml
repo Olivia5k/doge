@@ -1,14 +1,16 @@
 [build-system]
-requires = ["setuptools>=64"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "doge"
 version = "3.8.0"
 description = "wow very terminal doge"
 authors = [{ name = "Olivia Thiderman", email = "olivia@thiderman.org" }]
+urls = { Homepage = "https://github.com/thiderman/doge" }
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.9"
 classifiers = [
     'Development Status :: 5 - Production/Stable',
@@ -20,32 +22,20 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = ["python-dateutil>=2.8.2"]
-
-[project.urls]
-Homepage = "https://github.com/thiderman/doge"
 
 [project.scripts]
 doge = "doge.core:main"
 
 [tool.ruff]
-extend-exclude = ["pdbsh/rpcc_client.py"]
 line-length = 88
-target-version = "py39"
+format.docstring-code-format = true
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = ["D107", "D203", "D213", "COM812", "T20", "S311"]
-
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["D104"]
-
-[tool.ruff.lint.flake8-annotations]
-ignore-fully-untyped = true
-
-[tool.ruff.lint.flake8-type-checking]
-quote-annotations = true
-
-[tool.ruff.format]
-docstring-code-format = true
+per-file-ignores."__init__.py" = ["D104"]
+flake8-annotations.ignore-fully-untyped = true
+flake8-type-checking.quote-annotations = true

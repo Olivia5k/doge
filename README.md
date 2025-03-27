@@ -17,12 +17,13 @@ sometimes based on things from your computer.
 
 [doge meme]: http://knowyourmeme.com/memes/doge "Doge (Know Your Meme)"
 
-If you have [pipx][] (you should!), you can try out `doge` without installing
+If you have [uv][] or [pipx][] (you should!), you can try out `doge` without installing
 it permanently.\
-Just type `pipx run doge` in your terminal to see if you enjoy it. 🐶\
-If you do, `pipx install doge` to keep it around! 👍
+Just type `uvx doge` or `pipx run doge` in your terminal to see if you enjoy it. 🐶\
+If you do, `uv tool install doge` or `pipx install doge` to keep it around! 👍
 
 [pipx]: https://pipx.pypa.io "pipx — Install and Run Python Applications in Isolated Environments"
+[uv]: https://docs.astral.sh/uv/ "uv — An extremely fast Python package and project manager, written in Rust."
 
 ## Features
 
@@ -58,11 +59,11 @@ such as doge.
 
 ### Python-Based Install (Recommended)
 
-* `pipx install doge` -- this is the recommended method, but you need [pipx][]
+* `uv tool install doge` -- this is the recommended method, but you need [uv][]
   installed and configured.
-  * [pipx][] is usually the best way to install and run Python-based
+  * [uv][] is usually the best way to install and run Python-based
     applications from PyPI, so if you don't yet have it, you should! 👍
-  * To install newer versions, run `pipx upgrade doge` or `pipx upgrade-all`.
+  * To install newer versions, run `uv tool upgrade doge` or `uv tool upgrade --all`.
 * Make a Python [zipapp][] with [pex][] or [shiv][], and put it in your
   `$PATH`, for example:
   * `shiv doge -c doge -o ~/bin/doge`
@@ -91,9 +92,12 @@ package.
 If you choose this option, and experience any installation problems, then
 please report them to your downstream package maintainer.
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/doge.svg?exclude_unsupported=1)][doge_repology]
+[![Packaging status](https://repology.org/badge/vertical-allrepos/doge-motd.svg?exclude_unsupported=1)][doge_repology1]
 
-[doge_repology]:  https://repology.org/project/doge/versions "Versions for doge (Repology)"
+[![Packaging status](https://repology.org/badge/vertical-allrepos/doge-unclassified.svg?exclude_unsupported=1)][doge_repology2]
+
+[doge_repology1]:  https://repology.org/project/doge-motd/versions "Versions for doge (Repology)"
+[doge_repology2]:  https://repology.org/project/doge-unclassified/versions "Versions for doge (Repology)"
 
 Please note that it might take some time for downstream packages to catch up
 with [PyPI][doge_pypi]. The recommended installation with [pipx][] will always
