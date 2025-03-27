@@ -119,15 +119,15 @@ def easter_dates():
     return ((start.month, start.day), (stop.month, stop.day))
 
 
-def moon_dates():
+def moon_dates(look_back_days=14, margin_time_hours=12):
     """Calculate the nearest full moon date."""
     now = dt.datetime.now(tz=dateutil.tz.tzlocal())
-    moon_calculation_start = now - dt.timedelta(days=14)
-    n = fullmoon.NextFullMoon()
-    n.set_origin_datetime(moon_calculation_start)
-    next_full_moon = n.next_full_moon()
-    start = next_full_moon - dt.timedelta(hours=12)
-    stop = next_full_moon + dt.timedelta(hours=12)
+    moon_calculation_start = now - dt.timedelta(days=look_back_days)
+    full_moon_finder = fullmoon.NextFullMoon()
+    full_moon_finder.set_origin_datetime(moon_calculation_start)
+    calculated_full_moon = full_moon_finder.next_full_moon()
+    start = calculated_full_moon - dt.timedelta(hours=margin_time_hours)
+    stop = calculated_full_moon + dt.timedelta(hours=margin_time_hours)
     return ((start.month, start.day), (stop.month, stop.day))
 
 
