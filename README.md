@@ -59,13 +59,20 @@ such as doge.
 
 ### Python-Based Install (Recommended)
 
+The best way is to install doge directly from [PyPI][doge_pypi] with either
+[uv][] or [pipx][]:
+
 * `uv tool install doge` -- this is the recommended method, but you need [uv][]
   installed and configured.
   * [uv][] is usually the best way to install and run Python-based
     applications from PyPI, so if you don't yet have it, you should! 👍
   * To install newer versions, run `uv tool upgrade doge` or `uv tool upgrade --all`.
-* Make a Python [zipapp][] with [pex][] or [shiv][], and put it in your
-  `$PATH`, for example:
+* The other option is to use [pipx][]: `pipx install doge`
+
+Alternatively, you could also:
+
+* Make a self-contained Python [zipapp][] with [pex][] or [shiv][], and put it
+  in your `$PATH`, for example:
   * `shiv doge -c doge -o ~/bin/doge`
   * `pex doge -c doge -o ~/bin/doge`
 * Install with *pip*, see Brett Cannon's
@@ -100,5 +107,5 @@ please report them to your downstream package maintainer.
 [doge_repology2]:  https://repology.org/project/doge-unclassified/versions "Versions for doge (Repology)"
 
 Please note that it might take some time for downstream packages to catch up
-with [PyPI][doge_pypi]. The recommended installation with [pipx][] will always
-give you the latest version.
+with [PyPI][doge_pypi]. The recommended installation with [uv][] or [pipx][]
+will always give you the latest version.
