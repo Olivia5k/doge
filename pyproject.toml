@@ -7,7 +7,7 @@ name = "doge"
 version = "3.8.0"
 description = "wow very terminal doge"
 authors = [{ name = "Olivia Thiderman", email = "olivia@thiderman.org" }]
-urls = { Homepage = "https://github.com/thiderman/doge" }
+urls = { Homepage = "https://github.com/Olivia5k/doge" }
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -24,10 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-dependencies = [
-    "fullmoon>=1.0.2",
-    "python-dateutil>=2.8.2",
-]
+dependencies = ["fullmoon>=1.0.2", "python-dateutil>=2.8.2"]
 
 [project.scripts]
 doge = "doge.core:main"
