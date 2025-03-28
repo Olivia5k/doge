@@ -1,0 +1,48 @@
+version = 1
+revision = 1
+requires-python = ">=3.9"
+
+[[package]]
+name = "doge"
+version = "3.8.0"
+source = { editable = "." }
+dependencies = [
+    { name = "fullmoon" },
+    { name = "python-dateutil" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fullmoon", specifier = ">=1.0.2" },
+    { name = "python-dateutil", specifier = ">=2.8.2" },
+]
+
+[[package]]
+name = "fullmoon"
+version = "1.0.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cd/fc/a5794b83e77dd37f24e6d77f322bf9a8c017c165af50811ce40a9914dbab/fullmoon-1.0.2.tar.gz", hash = "sha256:595cf49dad6ff37751a55d9b6599d1ecbe200e6d8ac113faea1eb11f6e17bf86", size = 6041 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/81/5a/538d906a9cb3a0ef1bade173fc1dcbe2559cd0ccda4d956c9b5a23b47644/fullmoon-1.0.2-py3-none-any.whl", hash = "sha256:c9730dc9eebb151605887e611e16fba3e386cd242da81ce60a8e8ccfa426dfb4", size = 7248 },
+]
+
+[[package]]
+name = "python-dateutil"
+version = "2.9.0.post0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "six" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/66/c0/0c8b6ad9f17a802ee498c46e004a0eb49bc148f2fd230864601a86dcf6db/python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3", size = 342432 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427", size = 229892 },
+]
+
+[[package]]
+name = "six"
+version = "1.17.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050 },
+]
