@@ -10,7 +10,7 @@ import os
 import random
 import re
 import shutil
-import subprocess as sp
+import subprocess
 import sys
 import traceback
 import unicodedata
@@ -234,25 +234,27 @@ class Doge:
     def get_processes(self):
         """Grab a shuffled list of all currently running process names."""
         processes = set()
-
         try:
             # POSIX ps, so it should work in most environments where doge would
-            p = sp.Popen(["ps", "-A", "-o", "comm="], stdout=sp.PIPE)
-            output, _error = p.communicate()
+            result = subprocess.run(  # noqa: S603
+                ["ps", "-A", "-o", "comm="],  # noqa: S607
+                capture_output=True,
+                text=True,
+                check=True,
+            )
 
-            output = output.decode("utf-8")
-
-            for comm in output.split("\n"):
+            for comm in result.stdout.splitlines():
                 name = comm.split("/")[-1]
                 # Filter short and weird ones
                 if name and len(name) >= self.MIN_PS_LEN and ":" not in name:
                     processes.add(name)
 
-        finally:
-            # Either it executed properly or no ps was found.
-            proc_list = list(processes)
-            random.shuffle(proc_list)
-            return proc_list
+        except (OSError, subprocess.CalledProcessError):
+            pass
+
+        proc_list = list(processes)
+        random.shuffle(proc_list)
+        return proc_list
 
     def print_doge(self):
         """Print doge to terminal."""
