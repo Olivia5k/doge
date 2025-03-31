@@ -323,8 +323,13 @@ class TTYHandler:
         self.out_is_tty = sys.stdout.isatty()
 
         self.pretty = self.out_is_tty
-        if sys.platform == "win32" and os.getenv("TERM") == "xterm":
-            self.pretty = True
+        if sys.platform == "win32":
+            colorterm = os.environ.get("COLORTERM", "").lower()
+            self.pretty = (
+                "WT_SESSION" in os.environ
+                or colorterm in {"truecolor", "24bit"}
+                or os.getenv("TERM") == "xterm"
+            )
 
 
 def clean_len(s):
