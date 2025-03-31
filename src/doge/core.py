@@ -445,12 +445,12 @@ def main():
         traceback.print_exc()
         print()
 
-        lang = os.environ.get("LANG")
+        lang = os.getenv("LC_ALL") or os.getenv("LC_CTYPE") or os.getenv("LANG") or ""
         if not lang:
             print("wow error: broken $LANG, so fail")
             return 3
 
-        if not lang.endswith("UTF-8"):
+        if not lang.lower().endswith(("utf-8", "utf8")):
             print(
                 f"wow error: locale '{lang}' is not UTF-8.  doge needs UTF-8 to "
                 "print Shibe. Please set your system to use a UTF-8 locale."
@@ -459,7 +459,7 @@ def main():
 
         print(
             "wow error: Unknown unicode error.  Please report at "
-            "https://github.com/thiderman/doge/issues and include output from "
+            "https://github.com/Olivia5k/doge/issues and include output from "
             "/usr/bin/locale"
         )
         return 1
