@@ -5,8 +5,11 @@
 """Wow print Shibe to terminal, such random words."""
 
 import argparse
+import contextlib
 import datetime
+import getpass
 import os
+import platform
 import random
 import re
 import shutil
@@ -15,6 +18,7 @@ import sys
 import traceback
 import unicodedata
 from importlib.resources import files
+from pathlib import Path
 
 import dateutil.tz
 
@@ -176,22 +180,27 @@ class Doge:
     def get_real_data(self):
         """Grab actual data from the system."""
         ret = []
-        username = os.environ.get("USER")
-        if username:
-            ret.append(username)
+        with contextlib.suppress(OSError):
+            if username := getpass.getuser():
+                ret.append(username)
 
-        editor = os.environ.get("EDITOR")
-        if editor:
-            editor = editor.split("/")[-1]
+        if words := os.getenv("EDITOR", "").split():
+            editor = words[0].split("/")[-1]
             ret.append(editor)
 
         # OS, hostname and... architecture (because lel)
-        if hasattr(os, "uname"):
-            uname = os.uname()
-            ret.extend((uname[0], uname[1], uname[4]))
+        uname = (platform.system(), platform.node(), platform.machine())
+        ret.extend(x for x in uname if x)
+        with contextlib.suppress(OSError):
+            if (
+                hasattr(platform, "freedesktop_os_release")  # new in Python 3.10
+                and (os_release := platform.freedesktop_os_release())
+                and (os_id := os_release.get("ID"))
+            ):
+                ret.append(os_id)
 
         # Grab actual files from $HOME.
-        filenames = os.listdir(os.environ.get("HOME"))
+        filenames = [x.name for x in Path.home().iterdir()]
         if filenames:
             ret.append(random.choice(filenames))
 
@@ -358,7 +367,7 @@ def onscreen_len(s):
 
 def setup_arguments():
     """Make an ArgumentParser."""
-    parser = argparse.ArgumentParser("doge")
+    parser = argparse.ArgumentParser("doge", description=__doc__)
 
     parser.add_argument(
         "--shibe",
