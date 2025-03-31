@@ -71,7 +71,7 @@ class Doge:
 
         # Check for prompt height so that we can fill the screen minus how high
         # the prompt will be when done.
-        prompt = os.environ.get("PS1", "").split("\n")
+        prompt = os.getenv("PS1", "").split("\n")
         line_count = len(prompt) + 1
 
         # Create a list filled with empty lines and Shibe at the bottom.
@@ -117,7 +117,10 @@ class Doge:
 
             # Be sane if the holiday season spans over New Year's day.
             end_dt = datetime.datetime(
-                now.year + ((start[0] > end[0] and 1) or 0), end[0], end[1], tzinfo=tz
+                now.year + 1 if start[0] > end[0] else now.year,
+                end[0],
+                end[1],
+                tzinfo=tz,
             )
 
             if start_dt <= now <= end_dt:
@@ -326,7 +329,7 @@ class TTYHandler:
 
         self.pretty = self.out_is_tty
         if sys.platform == "win32":
-            colorterm = os.environ.get("COLORTERM", "").lower()
+            colorterm = os.getenv("COLORTERM", "").lower()
             self.pretty = (
                 "WT_SESSION" in os.environ
                 or colorterm in {"truecolor", "24bit"}
