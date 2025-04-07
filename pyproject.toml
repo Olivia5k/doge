@@ -1,10 +1,6 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "doge"
-version = "3.8.0"
+version = "3.9.0"
 description = "wow very terminal doge"
 authors = [{ name = "Olivia Thiderman", email = "olivia@thiderman.org" }]
 urls = { Homepage = "https://github.com/Olivia5k/doge" }
@@ -29,13 +25,14 @@ dependencies = ["fullmoon>=1.0.2", "python-dateutil>=2.8.2"]
 [project.scripts]
 doge = "doge.core:main"
 
-[tool.ruff]
-line-length = 88
-format.docstring-code-format = true
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D107", "D203", "D213", "COM812", "T20", "S311"]
+ignore = ["COM812", "T20", "D203", "D213", "D107", "S311"]
 per-file-ignores."__init__.py" = ["D104"]
+per-file-ignores."wow.py" = ["SIM905"]
 flake8-annotations.ignore-fully-untyped = true
 flake8-type-checking.quote-annotations = true
