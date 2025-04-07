@@ -5,16 +5,20 @@
 """Wow print Shibe to terminal, such random words."""
 
 import argparse
+import contextlib
 import datetime
+import getpass
 import os
+import platform
 import random
 import re
 import shutil
-import subprocess as sp
+import subprocess
 import sys
 import traceback
 import unicodedata
 from importlib.resources import files
+from pathlib import Path
 
 import dateutil.tz
 
@@ -71,7 +75,7 @@ class Doge:
 
         # Check for prompt height so that we can fill the screen minus how high
         # the prompt will be when done.
-        prompt = os.environ.get("PS1", "").split("\n")
+        prompt = os.getenv("PS1", "").split("\n")
         line_count = len(prompt) + 1
 
         # Create a list filled with empty lines and Shibe at the bottom.
@@ -117,7 +121,10 @@ class Doge:
 
             # Be sane if the holiday season spans over New Year's day.
             end_dt = datetime.datetime(
-                now.year + ((start[0] > end[0] and 1) or 0), end[0], end[1], tzinfo=tz
+                now.year + 1 if start[0] > end[0] else now.year,
+                end[0],
+                end[1],
+                tzinfo=tz,
             )
 
             if start_dt <= now <= end_dt:
@@ -173,22 +180,27 @@ class Doge:
     def get_real_data(self):
         """Grab actual data from the system."""
         ret = []
-        username = os.environ.get("USER")
-        if username:
-            ret.append(username)
+        with contextlib.suppress(OSError):
+            if username := getpass.getuser():
+                ret.append(username)
 
-        editor = os.environ.get("EDITOR")
-        if editor:
-            editor = editor.split("/")[-1]
+        if words := os.getenv("EDITOR", "").split():
+            editor = words[0].split("/")[-1]
             ret.append(editor)
 
         # OS, hostname and... architecture (because lel)
-        if hasattr(os, "uname"):
-            uname = os.uname()
-            ret.extend((uname[0], uname[1], uname[4]))
+        uname = (platform.system(), platform.node(), platform.machine())
+        ret.extend(x for x in uname if x)
+        with contextlib.suppress(OSError):
+            if (
+                hasattr(platform, "freedesktop_os_release")  # new in Python 3.10
+                and (os_release := platform.freedesktop_os_release())
+                and (os_id := os_release.get("ID"))
+            ):
+                ret.append(os_id)
 
         # Grab actual files from $HOME.
-        filenames = os.listdir(os.environ.get("HOME"))
+        filenames = [x.name for x in Path.home().iterdir()]
         if filenames:
             ret.append(random.choice(filenames))
 
@@ -234,25 +246,27 @@ class Doge:
     def get_processes(self):
         """Grab a shuffled list of all currently running process names."""
         processes = set()
-
         try:
             # POSIX ps, so it should work in most environments where doge would
-            p = sp.Popen(["ps", "-A", "-o", "comm="], stdout=sp.PIPE)
-            output, _error = p.communicate()
+            result = subprocess.run(  # noqa: S603
+                ["ps", "-A", "-o", "comm="],  # noqa: S607
+                capture_output=True,
+                text=True,
+                check=True,
+            )
 
-            output = output.decode("utf-8")
-
-            for comm in output.split("\n"):
+            for comm in result.stdout.splitlines():
                 name = comm.split("/")[-1]
                 # Filter short and weird ones
                 if name and len(name) >= self.MIN_PS_LEN and ":" not in name:
                     processes.add(name)
 
-        finally:
-            # Either it executed properly or no ps was found.
-            proc_list = list(processes)
-            random.shuffle(proc_list)
-            return proc_list
+        except (OSError, subprocess.CalledProcessError):
+            pass
+
+        proc_list = list(processes)
+        random.shuffle(proc_list)
+        return proc_list
 
     def print_doge(self):
         """Print doge to terminal."""
@@ -323,8 +337,13 @@ class TTYHandler:
         self.out_is_tty = sys.stdout.isatty()
 
         self.pretty = self.out_is_tty
-        if sys.platform == "win32" and os.getenv("TERM") == "xterm":
-            self.pretty = True
+        if sys.platform == "win32":
+            colorterm = os.getenv("COLORTERM", "").lower()
+            self.pretty = (
+                "WT_SESSION" in os.environ
+                or colorterm in {"truecolor", "24bit"}
+                or os.getenv("TERM") == "xterm"
+            )
 
 
 def clean_len(s):
@@ -348,7 +367,7 @@ def onscreen_len(s):
 
 def setup_arguments():
     """Make an ArgumentParser."""
-    parser = argparse.ArgumentParser("doge")
+    parser = argparse.ArgumentParser("doge", description=__doc__)
 
     parser.add_argument(
         "--shibe",
@@ -438,12 +457,12 @@ def main():
         traceback.print_exc()
         print()
 
-        lang = os.environ.get("LANG")
+        lang = os.getenv("LC_ALL") or os.getenv("LC_CTYPE") or os.getenv("LANG") or ""
         if not lang:
             print("wow error: broken $LANG, so fail")
             return 3
 
-        if not lang.endswith("UTF-8"):
+        if not lang.lower().endswith(("utf-8", "utf8")):
             print(
                 f"wow error: locale '{lang}' is not UTF-8.  doge needs UTF-8 to "
                 "print Shibe. Please set your system to use a UTF-8 locale."
@@ -452,7 +471,7 @@ def main():
 
         print(
             "wow error: Unknown unicode error.  Please report at "
-            "https://github.com/thiderman/doge/issues and include output from "
+            "https://github.com/Olivia5k/doge/issues and include output from "
             "/usr/bin/locale"
         )
         return 1
