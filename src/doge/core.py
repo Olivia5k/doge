@@ -28,7 +28,7 @@ import dateutil.tz
 from doge import wow
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Collection
 
 ROOT = files("doge").joinpath("static")
 DEFAULT_DOGE = "doge.txt"
@@ -222,7 +222,7 @@ class Doge:
 
     @staticmethod
     def filter_words(
-        words: list[str], stopwords: Sequence[str], min_length: int
+        words: list[str], stopwords: Collection[str], min_length: int
     ) -> list[str]:
         """Filter out unwanted words."""
         return [
@@ -237,7 +237,7 @@ class Doge:
 
         stdin_lines = sys.stdin.readlines()
 
-        rx_word = re.compile(r"\w+", re.UNICODE)
+        rx_word = re.compile(r"\w+(?:'\w+)*", re.UNICODE)
 
         # If we have stdin data, we should remove everything else!
         self.words.clear()
@@ -418,7 +418,10 @@ def setup_arguments() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "-s", "--filter_stopwords", help="many words lol", action="store_true"
+        "-s",
+        "--filter_stopwords",
+        help="such filter, remove many common words from input lol",
+        action="store_true",
     )
 
     parser.add_argument(
