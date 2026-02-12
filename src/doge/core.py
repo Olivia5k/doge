@@ -4,6 +4,8 @@
 
 """Wow print Shibe to terminal, such random words."""
 
+from __future__ import annotations
+
 import argparse
 import contextlib
 import datetime
@@ -19,10 +21,14 @@ import traceback
 import unicodedata
 from importlib.resources import files
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import dateutil.tz
 
 from doge import wow
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 ROOT = files("doge").joinpath("static")
 DEFAULT_DOGE = "doge.txt"
@@ -34,18 +40,19 @@ class Doge:
     MAX_PERCENT = 100
     MIN_PS_LEN = 2
 
-    def __init__(self, tty, ns):
+    def __init__(self, tty: TTYHandler, ns: argparse.Namespace) -> None:
         self.tty = tty
         self.ns = ns
-        self.lines = []
+        self.lines: list[str] = []
         self.doge_path = ROOT.joinpath(ns.doge_path or DEFAULT_DOGE)
+        self.words: wow.DogeDeque[str] | wow.FrequencyBasedDogeDeque[str]
         if ns.frequency:
             # such frequency based
             self.words = wow.FrequencyBasedDogeDeque(*wow.WORD_LIST, step=ns.step)
         else:
             self.words = wow.DogeDeque(*wow.WORD_LIST)
 
-    def setup(self):
+    def setup(self) -> bool:
         """Check args and seasons, load data, and decorate shibe."""
         # Setup seasonal data
         self.setup_seasonal()
@@ -94,7 +101,7 @@ class Doge:
         self.apply_text()
         return True
 
-    def setup_seasonal(self):
+    def setup_seasonal(self) -> None:
         """Handle seasonal holidays.
 
         Check if there's some seasonal holiday going on, setup appropriate
@@ -117,13 +124,13 @@ class Doge:
 
         for season, data in wow.SEASONS.items():
             start, end = data["dates"]
-            start_dt = datetime.datetime(now.year, start[0], start[1], tzinfo=tz)
+            start_dt = datetime.datetime(now.year, start.month, start.day, tzinfo=tz)
 
             # Be sane if the holiday season spans over New Year's day.
             end_dt = datetime.datetime(
-                now.year + 1 if start[0] > end[0] else now.year,
-                end[0],
-                end[1],
+                now.year + 1 if start.month > end.month else now.year,
+                end.month,
+                end.day,
                 tzinfo=tz,
             )
 
@@ -132,7 +139,7 @@ class Doge:
                 return self.load_season(season)
         return None
 
-    def load_season(self, season_key):
+    def load_season(self, season_key: str) -> None:
         """Try to load a season, unless 'none' given."""
         if season_key == "none":
             return
@@ -141,11 +148,14 @@ class Doge:
         self.doge_path = ROOT.joinpath(season["pic"])
         self.words.extend(season["words"])
 
-    def apply_text(self):
+    def apply_text(self) -> None:
         """Apply text around doge."""
         # Calculate a random sampling of lines that are to have text applied
         # onto them. Return value is a sorted list of line index integers.
         line_len = len(self.lines)
+
+        if not self.words:
+            self.words.append("wow")
 
         if self.ns.density == 0:
             return
@@ -167,7 +177,7 @@ class Doge:
             # Generate a new DogeMessage, possibly based on a word.
             self.lines[target] = DogeMessage(self, line, word).generate()
 
-    def load_doge(self):
+    def load_doge(self) -> list[str]:
         """Return pretty ASCII Shibe.
 
         wow
@@ -177,7 +187,7 @@ class Doge:
 
         return self.doge_path.read_text(encoding="utf-8").splitlines(keepends=True)
 
-    def get_real_data(self):
+    def get_real_data(self) -> None:
         """Grab actual data from the system."""
         ret = []
         with contextlib.suppress(OSError):
@@ -211,13 +221,15 @@ class Doge:
         self.words.extend(map(str.lower, ret))
 
     @staticmethod
-    def filter_words(words, stopwords, min_length):
+    def filter_words(
+        words: list[str], stopwords: Sequence[str], min_length: int
+    ) -> list[str]:
         """Filter out unwanted words."""
         return [
             word for word in words if len(word) >= min_length and word not in stopwords
         ]
 
-    def get_stdin_data(self):
+    def get_stdin_data(self) -> bool:
         """Get words from stdin."""
         if not self.tty.in_is_pipe:
             # No pipez found
@@ -243,7 +255,7 @@ class Doge:
 
         return True
 
-    def get_processes(self):
+    def get_processes(self) -> list[str]:
         """Grab a shuffled list of all currently running process names."""
         processes = set()
         try:
@@ -268,7 +280,7 @@ class Doge:
         random.shuffle(proc_list)
         return proc_list
 
-    def print_doge(self):
+    def print_doge(self) -> None:
         """Print doge to terminal."""
         for line in self.lines:
             sys.stdout.write(line)
@@ -278,13 +290,13 @@ class Doge:
 class DogeMessage:
     """Make a randomly placed and randomly colored message."""
 
-    def __init__(self, doge, occupied, word):
+    def __init__(self, doge: Doge, occupied: str, word: str) -> None:
         self.doge = doge
         self.tty = doge.tty
         self.occupied = occupied
         self.word = word
 
-    def generate(self):
+    def generate(self) -> str:
         """Add a word to a line, with color, random prefix and suffix."""
         if self.word == "wow":
             # Standalone wow. Don't apply any prefixes or suffixes.
@@ -323,14 +335,14 @@ class DogeMessage:
 class TTYHandler:
     """Get terminal properties."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.height = 25
         self.width = 80
         self.in_is_pipe = False
         self.out_is_tty = True
         self.pretty = True
 
-    def setup(self):
+    def setup(self) -> None:
         """Calculate terminal properties."""
         self.width, self.height = shutil.get_terminal_size()
         self.in_is_pipe = (not sys.stdin.isatty()) if sys.stdin else False
@@ -346,7 +358,7 @@ class TTYHandler:
             )
 
 
-def clean_len(s):
+def clean_len(s: str) -> int:
     """Calculate the visible width of a string without its color codes."""
     s = re.sub(r"\x1b\[[0-9;]*m", "", s)
 
@@ -356,7 +368,7 @@ def clean_len(s):
 DOUBLE_WIDTH_CATEGORIES = {"W", "F"}
 
 
-def onscreen_len(s):
+def onscreen_len(s: str) -> int:
     """Calculate the length of a unicode string on screen.
 
     Also account for double-width characters.
@@ -367,7 +379,7 @@ def onscreen_len(s):
     )
 
 
-def setup_arguments():
+def setup_arguments() -> argparse.ArgumentParser:
     """Make an ArgumentParser."""
     parser = argparse.ArgumentParser("doge", description=__doc__)
 
@@ -433,7 +445,7 @@ def setup_arguments():
     return parser
 
 
-def main():
+def main() -> int:
     """Run the main CLI script."""
     tty = TTYHandler()
     tty.setup()

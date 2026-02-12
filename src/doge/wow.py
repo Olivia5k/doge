@@ -5,16 +5,43 @@ Please extend this file with more lvl=100 shibe wow.
 
 # Copyright (C) 2013-2024 Olivia Thiderman
 
+from __future__ import annotations
+
 import datetime as dt
 import random
 from collections import deque
+from typing import TYPE_CHECKING, NamedTuple, TypedDict, TypeVar
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 import dateutil.easter
 import dateutil.tz
 import fullmoon
 
 
-class DogeDeque(deque):
+class MonthDay(NamedTuple):
+    """A (month, day) pair for seasonal date ranges."""
+
+    month: int
+    day: int
+
+
+DateRange = tuple[MonthDay, MonthDay]
+
+
+class Season(TypedDict):
+    """A seasonal holiday definition."""
+
+    dates: DateRange
+    pic: str
+    words: tuple[str, ...]
+
+
+T = TypeVar("T")
+
+
+class DogeDeque(deque[T]):
     """A doge deque. A doqe, if you may.
 
     Because random is random, just using a random choice from the static lists
@@ -23,13 +50,13 @@ class DogeDeque(deque):
     whenever an item is gotten from it.
     """
 
-    def __init__(self, *args, **_kwargs):
+    def __init__(self, *args: T) -> None:
         self.doge_index = 0
-        args = list(args)
-        random.shuffle(args)
-        super().__init__(args)
+        items = list(args)
+        random.shuffle(items)
+        super().__init__(items)
 
-    def get(self):
+    def get(self) -> T:
         """Get one item and prepare the next.
 
         This will rotate the deque one step. Repeated gets will
@@ -44,53 +71,45 @@ class DogeDeque(deque):
             self.shuffle()
 
         self.rotate(1)
-        try:
-            return self[0]
-        except IndexError:
-            return "wow"
+        return self[0]
 
-    def extend(self, iterable):
+    def extend(self, iterable: Iterable[T]) -> None:
         """Extend and shuffle."""
         # Whenever we extend the list, make sure to shuffle in the new items!
         super().extend(iterable)
         self.shuffle()
 
-    def shuffle(self):
+    def shuffle(self) -> None:
         """Shuffle the deque.
 
         Deques themselves do not support this, so this will make all items into
         a list, shuffle that list, clear the deque, and then re-init the deque.
         """
-        args = list(self)
-        random.shuffle(args)
+        items = list(self)
+        random.shuffle(items)
 
         self.clear()
         self.doge_index = 0
-        super().__init__(args)
+        super().__init__(items)
 
 
-class FrequencyBasedDogeDeque(deque):
+class FrequencyBasedDogeDeque(deque[T]):
     """A doge deque based on word frequencies."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: T, step: int = 2) -> None:
         self.doge_index = 0
-        self.step = kwargs.get("step", 2)
-        args = list(args)
-        # sort words by frequency
-        args = sorted(set(args), key=args.count)
-        super().__init__(args)
+        self.step = step
+        items = sorted(set(args), key=list(args).count)
+        super().__init__(items)
 
-    def shuffle(self):
+    def shuffle(self) -> None:
         """Shuffle the deque."""
 
-    def get(self):
+    def get(self) -> T:
         """Get one item and prepare the next.
 
         Prepare to get an item with lower rank on the next call.
         """
-        if len(self) < 1:
-            return "wow"
-
         if self.doge_index >= len(self):
             self.doge_index = 0
 
@@ -101,7 +120,7 @@ class FrequencyBasedDogeDeque(deque):
         self.rotate(step)
         return res
 
-    def extend(self, iterable):
+    def extend(self, iterable: Iterable[T]) -> None:
         """Extend and recalculate."""
         existing = list(self)
         merged = existing + list(iterable)
@@ -111,16 +130,16 @@ class FrequencyBasedDogeDeque(deque):
         super().__init__(new_to_add)
 
 
-def easter_dates():
+def easter_dates() -> DateRange:
     """Calculate the start and stop dates of Easter."""
     this_year = dt.datetime.now(tz=dateutil.tz.tzlocal()).year
     easter_day = dateutil.easter.easter(this_year)
     start = easter_day - dt.timedelta(days=7)
     stop = easter_day + dt.timedelta(days=1)
-    return ((start.month, start.day), (stop.month, stop.day))
+    return (MonthDay(start.month, start.day), MonthDay(stop.month, stop.day))
 
 
-def moon_dates(look_back_days=14, margin_time_hours=12):
+def moon_dates(look_back_days: int = 14, margin_time_hours: int = 12) -> DateRange:
     """Calculate the nearest full moon date."""
     now = dt.datetime.now(tz=dateutil.tz.tzlocal())
     moon_calculation_start = now - dt.timedelta(days=look_back_days)
@@ -129,7 +148,7 @@ def moon_dates(look_back_days=14, margin_time_hours=12):
     calculated_full_moon = full_moon_finder.next_full_moon()
     start = calculated_full_moon - dt.timedelta(hours=margin_time_hours)
     stop = calculated_full_moon + dt.timedelta(hours=margin_time_hours)
-    return ((start.month, start.day), (stop.month, stop.day))
+    return (MonthDay(start.month, start.day), MonthDay(stop.month, stop.day))
 
 
 PREFIXES = DogeDeque(
@@ -204,9 +223,9 @@ COLORS = DogeDeque(
 # Doge checks if current date falls in between these dates and show wow
 # congratulations, so do whatever complex math you need to make sure Shibe
 # celebrates with you!
-SEASONS = {
+SEASONS: dict[str, Season] = {
     "valentine": {
-        "dates": ((2, 12), (2, 15)),
+        "dates": (MonthDay(2, 12), MonthDay(2, 15)),
         "pic": "doge-valentine.txt",
         "words": (
             "valentine",
@@ -226,7 +245,7 @@ SEASONS = {
         ),
     },
     "halloween": {
-        "dates": ((10, 17), (10, 31)),
+        "dates": (MonthDay(10, 17), MonthDay(10, 31)),
         "pic": "doge-halloween.txt",
         "words": (
             "halloween",
@@ -243,7 +262,7 @@ SEASONS = {
         ),
     },
     "thanksgiving": {
-        "dates": ((11, 15), (11, 28)),
+        "dates": (MonthDay(11, 15), MonthDay(11, 28)),
         "pic": "doge-thanksgiving.txt",
         "words": (
             "thanksgiving",
@@ -256,7 +275,7 @@ SEASONS = {
         ),
     },
     "xmas": {
-        "dates": ((12, 14), (12, 26)),
+        "dates": (MonthDay(12, 14), MonthDay(12, 26)),
         "pic": "doge-xmas.txt",
         "words": (
             "christmas",
@@ -292,7 +311,7 @@ SEASONS = {
         ),
     },
     "earth": {
-        "dates": ((4, 16), (4, 22)),
+        "dates": (MonthDay(4, 16), MonthDay(4, 22)),
         "pic": "doge-earth.txt",
         "words": (
             "earth day",
@@ -318,7 +337,7 @@ SEASONS = {
         ),
     },
     "kabosu": {
-        "dates": ((5, 24), (5, 26)),
+        "dates": (MonthDay(5, 24), MonthDay(5, 26)),
         "pic": "doge-kabosu.txt",
         "words": (
             "sweet kabosu",

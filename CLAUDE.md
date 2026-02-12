@@ -19,6 +19,8 @@ uv run ruff check --fix .  # Auto-fix lint issues
 ```bash
 uv run pytest              # Run all tests
 uv run pytest tests/test_doge.py::test_name  # Run a single test
+uv run mypy src/doge/      # Type check (strict mode)
+uv run ty check            # Type check (ty)
 ```
 
 ## Architecture
@@ -32,7 +34,8 @@ The codebase lives in `src/doge/` with three modules:
   - `main()` — Entry point (`doge = "doge.core:main"` in pyproject.toml) with UTF-8/locale error handling
 
 - **wow.py** — Data and word collections:
-  - `DogeDeque` / `FrequencyBasedDogeDeque` — Custom deques that shuffle and rotate for non-repetitive random word selection
+  - `DogeDeque[T]` / `FrequencyBasedDogeDeque[T]` — Generic deques that shuffle and rotate for non-repetitive random word selection
+  - `MonthDay` (NamedTuple), `DateRange`, `Season` (TypedDict) — Typed date/season structures
   - Static data: `PREFIXES`, `SUFFIXES`, `WORD_LIST`, `COLORS` (256-color codes), `STOPWORDS`
   - `SEASONS` dict — 8 holidays (valentine, halloween, xmas, easter, moon, etc.) with date ranges, custom Shibe art paths, and themed word lists. Easter and moon dates are calculated dynamically via `python-dateutil` and `fullmoon`.
 
@@ -41,6 +44,7 @@ The codebase lives in `src/doge/` with three modules:
 ## Code Style
 
 - **Ruff** with `select = ["ALL"]` — very strict linting. Key ignores: `COM812` (trailing commas), `T20` (print statements OK), `D203`/`D213` (docstring style), `S311` (random OK)
-- Python 3.9+ compatibility required
+- **mypy** strict mode + **ty** for type checking. Stubs for `fullmoon` in `typings/`.
+- Python 3.10+ compatibility required (no PEP 695 type syntax — use `TypeVar` instead)
 - Build system: Hatchling
 - Commit messages use doge-speak ("Wow bamp version", "Much real data wow")

@@ -7,14 +7,13 @@ urls = { Homepage = "https://github.com/Olivia5k/doge" }
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Environment :: Console',
     'Operating System :: Unix',
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -26,17 +25,42 @@ dependencies = ["fullmoon>=1.0.2", "python-dateutil>=2.8.2"]
 doge = "doge.core:main"
 
 [dependency-groups]
-dev = ["pytest"]
+dev = ["pytest", "ty", "mypy", "types-python-dateutil"]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.ruff]
+extend-exclude = ["typings"]
+
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["COM812", "T20", "D203", "D213", "D107", "S311"]
-per-file-ignores."__init__.py" = ["D104"]
-per-file-ignores."wow.py" = ["SIM905"]
-per-file-ignores."tests/*" = ["S101", "S603", "INP001", "PLW1510"]
-flake8-annotations.ignore-fully-untyped = true
-flake8-type-checking.quote-annotations = true
+ignore = [
+    "COM812",  # missing-trailing-comma (formatter handles this)
+    "T20",     # flake8-print (print statements are intentional)
+    "D203",    # one-blank-line-before-class (conflicts with D211)
+    "D213",    # multi-line-summary-second-line (conflicts with D212)
+    "D107",    # undocumented-public-init
+    "S311",    # suspicious-non-cryptographic-random-usage (random is fine here)
+]
+per-file-ignores."__init__.py" = [
+    "D104",    # undocumented-public-package
+]
+per-file-ignores."wow.py" = [
+    "SIM905",  # split-static-string
+]
+per-file-ignores."tests/*" = [
+    "ANN",     # flake8-annotations (not needed in tests)
+    "S101",    # assert (assert is fine in tests)
+    "S603",    # subprocess-without-shell-equals-true
+    "INP001",  # implicit-namespace-package (no __init__.py needed)
+    "PLW1510", # subprocess-run-without-check
+]
+
+[tool.mypy]
+strict = true
+mypy_path = "typings"
+
+[tool.ty]
+# add settings later as necessary
