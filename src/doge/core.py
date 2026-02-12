@@ -109,7 +109,7 @@ class Doge:
 
         # If we've specified another doge or no doge at all, it does not make
         # sense to use seasons.
-        if self.ns.doge_path is not None and not self.ns.no_shibe:
+        if self.ns.doge_path is not None or self.ns.no_shibe:
             return None
 
         tz = dateutil.tz.tzlocal()
@@ -223,7 +223,7 @@ class Doge:
             # No pipez found
             return False
 
-        stdin_lines = (line for line in sys.stdin.readlines())
+        stdin_lines = sys.stdin.readlines()
 
         rx_word = re.compile(r"\w+", re.UNICODE)
 
@@ -347,10 +347,13 @@ class TTYHandler:
 
 
 def clean_len(s):
-    """Calculate the length of a string without its color codes."""
+    """Calculate the visible width of a string without its color codes."""
     s = re.sub(r"\x1b\[[0-9;]*m", "", s)
 
-    return len(s)
+    return onscreen_len(s)
+
+
+DOUBLE_WIDTH_CATEGORIES = {"W", "F"}
 
 
 def onscreen_len(s):
@@ -358,11 +361,10 @@ def onscreen_len(s):
 
     Also account for double-width characters.
     """
-    length = 0
-    for ch in s:
-        length += 2 if unicodedata.east_asian_width(ch) == "W" else 1
-
-    return length
+    return sum(
+        2 if unicodedata.east_asian_width(ch) in DOUBLE_WIDTH_CATEGORIES else 1
+        for ch in s
+    )
 
 
 def setup_arguments():

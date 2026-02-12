@@ -65,6 +65,7 @@ class DogeDeque(deque):
         random.shuffle(args)
 
         self.clear()
+        self.doge_index = 0
         super().__init__(args)
 
 
@@ -172,8 +173,6 @@ WORD_LIST = [
     "thread safe",
     "posix",
 ]
-WORDS = DogeDeque(*WORD_LIST)
-
 SUFFIXES = DogeDeque("wow", "lol", "hax", "plz", "lvl=100")
 
 # A subset of the 255 color cube with the darkest colors removed. This is
@@ -359,8 +358,7 @@ SEASONS = {
 }
 
 # Using "1 2 3".split() keeps the line count low, even with black auto-formatting.
-STOPWORDS = [
-    """
+STOPWORDS = """
     able about above abroad according accordingly across actually adj after
     afterwards again against ago ahead ain't all allow allows almost alone along
     alongside already also although always am amid amidst among amongst an and
@@ -485,5 +483,4 @@ STOPWORDS = [
 
     I a about an are as at be by com for from how in is it of on or that the
     this to was what when where who will with the www
-    """.split()
-]
+""".split()
