@@ -414,12 +414,12 @@ def setup_arguments() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "-f", "--frequency", help="such frequency based", action="store_true"
+        "-f", "--frequency", help="such frequency based word pick", action="store_true"
     )
 
     parser.add_argument(
         "--step",
-        help="beautiful step",  # how much to step
+        help="beautiful frequency step size",  # how much to step
         #  between ranks in FrequencyBasedDogeDeque
         type="positive integer",
         default=2,
@@ -427,7 +427,7 @@ def setup_arguments() -> argparse.ArgumentParser:
 
     parser.add_argument(
         "--min_length",
-        help="pretty minimum",  # minimum length of a word
+        help="pretty minimum word length",  # minimum length of a word
         type="positive integer",
         default=1,
     )
