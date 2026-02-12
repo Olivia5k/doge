@@ -248,7 +248,7 @@ class Doge:
         processes = set()
         try:
             # POSIX ps, so it should work in most environments where doge would
-            result = subprocess.run(  # noqa: S603
+            result = subprocess.run(
                 ["ps", "-A", "-o", "comm="],  # noqa: S607
                 capture_output=True,
                 text=True,
