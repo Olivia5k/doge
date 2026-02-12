@@ -5,6 +5,8 @@ import sys
 
 import pytest
 
+ARGPARSE_USAGE_ERROR = 2
+
 SEASONS = [
     "valentine",
     "halloween",
@@ -91,5 +93,5 @@ def test_stdin_all_stopwords():
 def test_invalid_density():
     """Density over 100 exits with error."""
     result = run_doge("--density", "200")
-    assert result.returncode == 1
+    assert result.returncode == ARGPARSE_USAGE_ERROR
     assert "density" in result.stderr.lower()

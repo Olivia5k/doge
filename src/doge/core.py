@@ -37,7 +37,6 @@ DEFAULT_DOGE = "doge.txt"
 class Doge:
     """Make Shibe and pretty random words."""
 
-    MAX_PERCENT = 100
     MIN_PS_LEN = 2
 
     def __init__(self, tty: TTYHandler, ns: argparse.Namespace) -> None:
@@ -65,14 +64,6 @@ class Doge:
             # stdout is being piped and we should not load Shibe
             doge = []
             max_doge = 15
-
-        if self.ns.density > self.MAX_PERCENT:
-            sys.stderr.write("wow, density such over 100%, too high\n")
-            sys.exit(1)
-
-        if self.ns.density < 0:
-            sys.stderr.write("wow, density such negative, too low\n")
-            sys.exit(1)
 
         if self.tty.width < max_doge:
             # Shibe won't fit, so abort.
@@ -166,12 +157,12 @@ class Doge:
 
         for i, target in enumerate(affected, start=1):
             line = self.lines[target]
-            line = re.sub("\n", " ", line)
+            line = line.replace("\n", " ")
 
             word = self.words.get()
 
             # If first or last line, or a random selection, use standalone wow.
-            if i == 1 or i == len(affected) or random.choice(range(20)) == 0:
+            if i == 1 or i == len(affected) or random.randrange(20) == 0:
                 word = "wow"
 
             # Generate a new DogeMessage, possibly based on a word.
@@ -210,9 +201,10 @@ class Doge:
                 ret.append(os_id)
 
         # Grab actual files from $HOME.
-        filenames = [x.name for x in Path.home().iterdir()]
-        if filenames:
-            ret.append(random.choice(filenames))
+        with contextlib.suppress(OSError):
+            filenames = [x.name for x in Path.home().iterdir()]
+            if filenames:
+                ret.append(random.choice(filenames))
 
         # Grab some processes
         ret += self.get_processes()[:2]
@@ -306,7 +298,7 @@ class DogeMessage:
             msg = f"{wow.PREFIXES.get()} {self.word}"
 
             # Seldomly add a suffix as well.
-            if random.choice(range(15)) == 0:
+            if random.randrange(15) == 0:
                 msg += f" {wow.SUFFIXES.get()}"
 
         # Calculate the maximum possible spacer
@@ -321,7 +313,7 @@ class DogeMessage:
             return self.occupied + "\n"
 
         # Apply spacing
-        spacer = " " * random.choice(range(interval))
+        spacer = " " * random.randrange(interval)
         msg = f"{spacer}{msg}"
 
         if self.tty.pretty:
@@ -351,7 +343,7 @@ class TTYHandler:
         self.pretty = self.out_is_tty
         if sys.platform == "win32":
             colorterm = os.getenv("COLORTERM", "").lower()
-            self.pretty = (
+            self.pretty = self.out_is_tty and (
                 "WT_SESSION" in os.environ
                 or colorterm in {"truecolor", "24bit"}
                 or os.getenv("TERM") == "xterm"
@@ -379,9 +371,32 @@ def onscreen_len(s: str) -> int:
     )
 
 
+def _positive_int(value: str) -> int:
+    """Argparse type for positive integers."""
+    n = int(value)
+    if n <= 0:
+        msg = f"wow {value} is not positive, such fail"
+        raise argparse.ArgumentTypeError(msg)
+    return n
+
+
+_MAX_DENSITY = 100
+
+
+def _density(value: str) -> float:
+    """Argparse type for density percentage (0-100)."""
+    n = float(value)
+    if not 0 <= n <= _MAX_DENSITY:
+        msg = f"wow density {value} out of range, must be 0-{_MAX_DENSITY}"
+        raise argparse.ArgumentTypeError(msg)
+    return n
+
+
 def setup_arguments() -> argparse.ArgumentParser:
     """Make an ArgumentParser."""
     parser = argparse.ArgumentParser("doge", description=__doc__)
+    parser.register("type", "positive integer", _positive_int)
+    parser.register("type", "density percentage", _density)
 
     parser.add_argument(
         "--shibe",
@@ -406,21 +421,21 @@ def setup_arguments() -> argparse.ArgumentParser:
         "--step",
         help="beautiful step",  # how much to step
         #  between ranks in FrequencyBasedDogeDeque
-        type=int,
+        type="positive integer",
         default=2,
     )
 
     parser.add_argument(
         "--min_length",
         help="pretty minimum",  # minimum length of a word
-        type=int,
+        type="positive integer",
         default=1,
     )
 
     parser.add_argument(
         "-s",
         "--filter_stopwords",
-        help="such filter, remove many common words from input lol",
+        help="many filter common input words lol",
         action="store_true",
     )
 
@@ -428,21 +443,21 @@ def setup_arguments() -> argparse.ArgumentParser:
         "-mh",
         "--max-height",
         help="such max height",
-        type=int,
+        type="positive integer",
     )
 
     parser.add_argument(
         "-mw",
         "--max-width",
         help="such max width",
-        type=int,
+        type="positive integer",
     )
 
     parser.add_argument(
         "-d",
         "--density",
         help="such word density percent, max is 100, default is 30, wow",
-        type=float,
+        type="density percentage",
         default=30,
     )
     return parser
