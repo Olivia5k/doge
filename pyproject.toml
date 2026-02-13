@@ -18,6 +18,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = ["fullmoon>=1.0.2", "python-dateutil>=2.8.2"]
 
@@ -25,7 +26,7 @@ dependencies = ["fullmoon>=1.0.2", "python-dateutil>=2.8.2"]
 doge = "doge.core:main"
 
 [dependency-groups]
-dev = ["pytest", "ty", "mypy", "types-python-dateutil"]
+dev = ["pytest", "ty", "mypy", "types-python-dateutil", "ruff>=0.15.1"]
 
 [build-system]
 requires = ["hatchling"]
@@ -37,18 +38,18 @@ extend-exclude = ["typings"]
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "COM812",  # missing-trailing-comma (formatter handles this)
-    "T20",     # flake8-print (print statements are intentional)
-    "D203",    # one-blank-line-before-class (conflicts with D211)
-    "D213",    # multi-line-summary-second-line (conflicts with D212)
-    "D107",    # undocumented-public-init
-    "S311",    # suspicious-non-cryptographic-random-usage (random is fine here)
+    "COM812", # missing-trailing-comma (formatter handles this)
+    "T20",    # flake8-print (print statements are intentional)
+    "D203",   # one-blank-line-before-class (conflicts with D211)
+    "D213",   # multi-line-summary-second-line (conflicts with D212)
+    "D107",   # undocumented-public-init
+    "S311",   # suspicious-non-cryptographic-random-usage (random is fine here)
 ]
 per-file-ignores."__init__.py" = [
-    "D104",    # undocumented-public-package
+    "D104", # undocumented-public-package
 ]
 per-file-ignores."wow.py" = [
-    "SIM905",  # split-static-string
+    "SIM905", # split-static-string
 ]
 per-file-ignores."tests/*" = [
     "ANN",     # flake8-annotations (not needed in tests)
@@ -62,5 +63,5 @@ per-file-ignores."tests/*" = [
 strict = true
 mypy_path = "typings"
 
-[tool.ty]
-# add settings later as necessary
+[tool.ty.environment]
+extra-paths = ["./typings"]

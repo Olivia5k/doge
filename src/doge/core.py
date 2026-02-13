@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import dataclasses
 import datetime
 import getpass
 import os
@@ -34,20 +35,34 @@ ROOT = files("doge").joinpath("static")
 DEFAULT_DOGE = "doge.txt"
 
 
+@dataclasses.dataclass(frozen=True)
+class DogeConfig:
+    """Typed configuration parsed from CLI arguments."""
+
+    doge_path: str | None = None
+    no_shibe: bool = False
+    season: str | None = None
+    frequency: bool = False
+    step: int = 2
+    density: float = 30
+    filter_stopwords: bool = False
+    min_length: int = 1
+
+
 class Doge:
     """Make Shibe and pretty random words."""
 
     MIN_PS_LEN = 2
 
-    def __init__(self, tty: TTYHandler, ns: argparse.Namespace) -> None:
+    def __init__(self, tty: TTYHandler, config: DogeConfig) -> None:
         self.tty = tty
-        self.ns = ns
+        self.config = config
         self.lines: list[str] = []
-        self.doge_path = ROOT.joinpath(ns.doge_path or DEFAULT_DOGE)
+        self.doge_path = ROOT.joinpath(config.doge_path or DEFAULT_DOGE)
         self.words: wow.DogeDeque[str] | wow.FrequencyBasedDogeDeque[str]
-        if ns.frequency:
+        if config.frequency:
             # such frequency based
-            self.words = wow.FrequencyBasedDogeDeque(*wow.WORD_LIST, step=ns.step)
+            self.words = wow.FrequencyBasedDogeDeque(*wow.WORD_LIST, step=config.step)
         else:
             self.words = wow.DogeDeque(*wow.WORD_LIST)
 
@@ -102,12 +117,12 @@ class Doge:
         the first one takes precedence.
         """
         # If we've specified a season, just run that one
-        if self.ns.season:
-            return self.load_season(self.ns.season)
+        if self.config.season:
+            return self.load_season(self.config.season)
 
         # If we've specified another doge or no doge at all, it does not make
         # sense to use seasons.
-        if self.ns.doge_path is not None or self.ns.no_shibe:
+        if self.config.doge_path is not None or self.config.no_shibe:
             return None
 
         tz = dateutil.tz.tzlocal()
@@ -148,11 +163,11 @@ class Doge:
         if not self.words:
             self.words.append("wow")
 
-        if self.ns.density == 0:
+        if self.config.density == 0:
             return
 
         affected = sorted(
-            random.sample(range(line_len), int(line_len * (self.ns.density / 100)))
+            random.sample(range(line_len), int(line_len * (self.config.density / 100)))
         )
 
         for i, target in enumerate(affected, start=1):
@@ -166,14 +181,14 @@ class Doge:
                 word = "wow"
 
             # Generate a new DogeMessage, possibly based on a word.
-            self.lines[target] = DogeMessage(self, line, word).generate()
+            self.lines[target] = DogeMessage(self.tty, line, word).generate()
 
     def load_doge(self) -> list[str]:
         """Return pretty ASCII Shibe.
 
         wow
         """
-        if self.ns.no_shibe:
+        if self.config.no_shibe:
             return [""]
 
         return self.doge_path.read_text(encoding="utf-8").splitlines(keepends=True)
@@ -238,9 +253,9 @@ class Doge:
             for line in stdin_lines
             for match in rx_word.finditer(line.lower())
         ]
-        if self.ns.filter_stopwords:
+        if self.config.filter_stopwords:
             word_list = self.filter_words(
-                word_list, stopwords=wow.STOPWORDS, min_length=self.ns.min_length
+                word_list, stopwords=wow.STOPWORDS, min_length=self.config.min_length
             )
 
         self.words.extend(word_list)
@@ -282,9 +297,8 @@ class Doge:
 class DogeMessage:
     """Make a randomly placed and randomly colored message."""
 
-    def __init__(self, doge: Doge, occupied: str, word: str) -> None:
-        self.doge = doge
-        self.tty = doge.tty
+    def __init__(self, tty: TTYHandler, occupied: str, word: str) -> None:
+        self.tty = tty
         self.occupied = occupied
         self.word = word
 
@@ -327,15 +341,12 @@ class DogeMessage:
 class TTYHandler:
     """Get terminal properties."""
 
-    def __init__(self) -> None:
-        self.height = 25
-        self.width = 80
-        self.in_is_pipe = False
-        self.out_is_tty = True
-        self.pretty = True
-
-    def setup(self) -> None:
-        """Calculate terminal properties."""
+    def __init__(
+        self,
+        *,
+        max_height: int | None = None,
+        max_width: int | None = None,
+    ) -> None:
         self.width, self.height = shutil.get_terminal_size()
         self.in_is_pipe = (not sys.stdin.isatty()) if sys.stdin else False
         self.out_is_tty = sys.stdout.isatty()
@@ -348,6 +359,11 @@ class TTYHandler:
                 or colorterm in {"truecolor", "24bit"}
                 or os.getenv("TERM") == "xterm"
             )
+
+        if max_height:
+            self.height = max_height
+        if max_width:
+            self.width = max_width
 
 
 def clean_len(s: str) -> int:
@@ -465,18 +481,22 @@ def setup_arguments() -> argparse.ArgumentParser:
 
 def main() -> int:
     """Run the main CLI script."""
-    tty = TTYHandler()
-    tty.setup()
-
     parser = setup_arguments()
     ns = parser.parse_args()
-    if ns.max_height:
-        tty.height = ns.max_height
-    if ns.max_width:
-        tty.width = ns.max_width
+    tty = TTYHandler(max_height=ns.max_height, max_width=ns.max_width)
+    config = DogeConfig(
+        doge_path=ns.doge_path,
+        no_shibe=ns.no_shibe,
+        season=ns.season,
+        frequency=ns.frequency,
+        step=ns.step,
+        density=ns.density,
+        filter_stopwords=ns.filter_stopwords,
+        min_length=ns.min_length,
+    )
 
     try:
-        shibe = Doge(tty, ns)
+        shibe = Doge(tty, config)
         if not shibe.setup():
             # We assume that setup() prints what went wrong.
             return 1

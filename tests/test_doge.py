@@ -5,18 +5,11 @@ import sys
 
 import pytest
 
+from doge import wow
+
 ARGPARSE_USAGE_ERROR = 2
 
-SEASONS = [
-    "valentine",
-    "halloween",
-    "thanksgiving",
-    "xmas",
-    "easter",
-    "earth",
-    "kabosu",
-    "moon",
-]
+SEASONS = sorted(wow.SEASONS)
 
 
 def run_doge(*args, stdin_data=None):

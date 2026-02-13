@@ -94,7 +94,10 @@ class DogeDeque(deque[T]):
 
 
 class FrequencyBasedDogeDeque(deque[T]):
-    """A doge deque based on word frequencies."""
+    """A doge deque based on word frequencies.
+
+    Interchangeable with DogeDeque (same get/extend/clear/append interface).
+    """
 
     def __init__(self, *args: T, step: int = 2) -> None:
         self.doge_index = 0
