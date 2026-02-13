@@ -9,18 +9,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ```bash
-uv sync                  # Install/sync dependencies
-uv run doge              # Run the application
-uv run ruff check .      # Lint (uses ALL rules with specific ignores)
-uv run ruff format .     # Format code
-uv run ruff check --fix .  # Auto-fix lint issues
-```
-
-```bash
-uv run pytest              # Run all tests
-uv run pytest tests/test_doge.py::test_name  # Run a single test
-uv run mypy src/doge/      # Type check (strict mode)
-uv run ty check            # Type check (ty)
+uv sync                    # Install/sync dependencies
+uv run doge                # Run the application
+just check                 # Auto-fix lint/format, type check (mypy + ty), and test
+just ci                    # Same but strict (no auto-fix, for CI)
+just test [args]           # Run tests (e.g. just test tests/test_doge.py::test_name)
 ```
 
 ## Architecture
@@ -28,8 +21,9 @@ uv run ty check            # Type check (ty)
 The codebase lives in `src/doge/` with three modules:
 
 - **core.py** — Main application logic. Key classes:
+  - `DogeConfig` — Frozen dataclass for typed CLI configuration (replaces raw `argparse.Namespace`)
   - `TTYHandler` — Terminal detection (dimensions, color support, platform)
-  - `Doge` — Orchestrator: parses args, loads Shibe art, collects words (system data or stdin), places colored text on random lines
+  - `Doge` — Orchestrator: loads Shibe art, collects words (system data or stdin), places colored text on random lines
   - `DogeMessage` — Formats individual messages with random prefix/suffix, ANSI 256-color, and spacing
   - `main()` — Entry point (`doge = "doge.core:main"` in pyproject.toml) with UTF-8/locale error handling
 
@@ -43,6 +37,7 @@ The codebase lives in `src/doge/` with three modules:
 
 ## Code Style
 
+- **pre-commit** hooks: ruff check+format, trailing whitespace, YAML/TOML checks, merge conflict detection
 - **Ruff** with `select = ["ALL"]` — very strict linting. Key ignores: `COM812` (trailing commas), `T20` (print statements OK), `D203`/`D213` (docstring style), `S311` (random OK)
 - **mypy** strict mode + **ty** for type checking. Stubs for `fullmoon` in `typings/`.
 - Python 3.10+ compatibility required (no PEP 695 type syntax — use `TypeVar` instead)
