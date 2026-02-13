@@ -10,6 +10,7 @@ from __future__ import annotations
 import datetime as dt
 import random
 from collections import deque
+from collections.abc import Hashable
 from typing import TYPE_CHECKING, NamedTuple, TypedDict, TypeVar
 
 if TYPE_CHECKING:
@@ -38,7 +39,7 @@ class Season(TypedDict):
     words: tuple[str, ...]
 
 
-T = TypeVar("T")
+T = TypeVar("T", bound=Hashable)
 
 
 class DogeDeque(deque[T]):
@@ -381,43 +382,44 @@ SEASONS: dict[str, Season] = {
 
 # Using "1 2 3".split() keeps the line count low, even with ruff auto-formatting.
 STOPWORDS = frozenset(
-    """a a's able about above abroad according accordingly across actually adj
-    after afterwards again against ago ahead ain't all allow allows almost
-    alone along alongside already also although always am amid amidst among
-    amongst an and another any anybody anyhow anyone anything anyway anyways
-    anywhere apart appear appreciate appropriate are aren't around as aside ask
-    asking associated at available away awfully b back backward backwards be
-    became because become becomes becoming been before beforehand begin behind
-    being believe below beside besides best better between beyond both brief
-    but by c c'mon c's came can can't cannot cant caption cause causes certain
-    certainly changes clearly co co. com come comes concerning consequently
-    consider considering contain containing contains corresponding could
-    couldn't course currently d dare daren't definitely described despite did
-    didn't different directly do does doesn't doing don't done down downwards
-    during e each edu eg eight eighty either else elsewhere end ending enough
-    entirely especially et etc even ever evermore every everybody everyone
-    everything everywhere ex exactly example except f fairly far farther few
-    fewer fifth first five followed following follows for forever former
-    formerly forth forward found four from further furthermore g get gets
-    getting given gives go goes going gone got gotten greetings h had hadn't
-    half happens hardly has hasn't have haven't having he he'd he'll he's hello
-    help hence her here here's hereafter hereby herein hereupon hers herself hi
-    him himself his hither hopefully how how's howbeit however hundred I I'd
-    I'll I'm I've ie if ignored immediate in inasmuch inc inc. indeed indicate
-    indicated indicates inner inside insofar instead into inward is isn't it
-    it'd it'll it's its itself j just k keep keeps kept know known knows l last
-    lately later latter latterly least less lest let let's like liked likely
-    likewise little look looking looks low lower ltd m made mainly make makes
-    many may maybe mayn't me mean meantime meanwhile merely might mightn't mine
-    minus miss more moreover most mostly mr mrs much must mustn't my myself n
-    name namely nd near nearly necessary need needn't needs neither never
-    neverf neverless nevertheless new next nine ninety no no-one nobody non
-    none nonetheless noone nor normally not nothing notwithstanding novel now
-    nowhere o obviously of off often oh ok okay old on once one one's ones only
-    onto opposite or other others otherwise ought oughtn't our ours ourselves
-    out outside over overall own p particular particularly past per perhaps
-    placed please plus possible presumably probably provided provides q que
-    quite qv r rather rd re really reasonably recent recently regarding
+    w.lower()
+    for w in """a a's able about above abroad according accordingly across
+    actually adj after afterwards again against ago ahead ain't all allow
+    allows almost alone along alongside already also although always am amid
+    amidst among amongst an and another any anybody anyhow anyone anything
+    anyway anyways anywhere apart appear appreciate appropriate are aren't
+    around as aside ask asking associated at available away awfully b back
+    backward backwards be became because become becomes becoming been before
+    beforehand begin behind being believe below beside besides best better
+    between beyond both brief but by c c'mon c's came can can't cannot cant
+    caption cause causes certain certainly changes clearly co co. com come
+    comes concerning consequently consider considering contain containing
+    contains corresponding could couldn't course currently d dare daren't
+    definitely described despite did didn't different directly do does doesn't
+    doing don't done down downwards during e each edu eg eight eighty either
+    else elsewhere end ending enough entirely especially et etc even ever
+    evermore every everybody everyone everything everywhere ex exactly example
+    except f fairly far farther few fewer fifth first five followed following
+    follows for forever former formerly forth forward found four from further
+    furthermore g get gets getting given gives go goes going gone got gotten
+    greetings h had hadn't half happens hardly has hasn't have haven't having
+    he he'd he'll he's hello help hence her here here's hereafter hereby herein
+    hereupon hers herself hi him himself his hither hopefully how how's howbeit
+    however hundred I I'd I'll I'm I've ie if ignored immediate in inasmuch inc
+    inc. indeed indicate indicated indicates inner inside insofar instead into
+    inward is isn't it it'd it'll it's its itself j just k keep keeps kept know
+    known knows l last lately later latter latterly least less lest let let's
+    like liked likely likewise little look looking looks low lower ltd m made
+    mainly make makes many may maybe mayn't me mean meantime meanwhile merely
+    might mightn't mine minus miss more moreover most mostly mr mrs much must
+    mustn't my myself n name namely nd near nearly necessary need needn't needs
+    neither never neverf neverless nevertheless new next nine ninety no no-one
+    nobody non none nonetheless noone nor normally not nothing notwithstanding
+    novel now nowhere o obviously of off often oh ok okay old on once one one's
+    ones only onto opposite or other others otherwise ought oughtn't our ours
+    ourselves out outside over overall own p particular particularly past per
+    perhaps placed please plus possible presumably probably provided provides q
+    que quite qv r rather rd re really reasonably recent recently regarding
     regardless regards relatively respectively right round s said same saw say
     saying says second secondly see seeing seem seemed seeming seems seen self
     selves sensible sent serious seriously seven several shall shan't she she'd
