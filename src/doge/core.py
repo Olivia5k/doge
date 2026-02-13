@@ -4,8 +4,11 @@
 
 """Wow print Shibe to terminal, such random words."""
 
+from __future__ import annotations
+
 import argparse
 import contextlib
+import dataclasses
 import datetime
 import getpass
 import os
@@ -19,33 +22,51 @@ import traceback
 import unicodedata
 from importlib.resources import files
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import dateutil.tz
 
 from doge import wow
 
+if TYPE_CHECKING:
+    from collections.abc import Collection
+
 ROOT = files("doge").joinpath("static")
 DEFAULT_DOGE = "doge.txt"
+
+
+@dataclasses.dataclass(frozen=True)
+class DogeConfig:
+    """Typed configuration parsed from CLI arguments."""
+
+    doge_path: str | None = None
+    no_shibe: bool = False
+    season: str | None = None
+    frequency: bool = False
+    step: int = 2
+    density: float = 30
+    filter_stopwords: bool = False
+    min_length: int = 1
 
 
 class Doge:
     """Make Shibe and pretty random words."""
 
-    MAX_PERCENT = 100
     MIN_PS_LEN = 2
 
-    def __init__(self, tty, ns):
+    def __init__(self, tty: TTYHandler, config: DogeConfig) -> None:
         self.tty = tty
-        self.ns = ns
-        self.lines = []
-        self.doge_path = ROOT.joinpath(ns.doge_path or DEFAULT_DOGE)
-        if ns.frequency:
+        self.config = config
+        self.lines: list[str] = []
+        self.doge_path = ROOT.joinpath(config.doge_path or DEFAULT_DOGE)
+        self.words: wow.DogeDeque[str] | wow.FrequencyBasedDogeDeque[str]
+        if config.frequency:
             # such frequency based
-            self.words = wow.FrequencyBasedDogeDeque(*wow.WORD_LIST, step=ns.step)
+            self.words = wow.FrequencyBasedDogeDeque(*wow.WORD_LIST, step=config.step)
         else:
             self.words = wow.DogeDeque(*wow.WORD_LIST)
 
-    def setup(self):
+    def setup(self) -> bool:
         """Check args and seasons, load data, and decorate shibe."""
         # Setup seasonal data
         self.setup_seasonal()
@@ -58,14 +79,6 @@ class Doge:
             # stdout is being piped and we should not load Shibe
             doge = []
             max_doge = 15
-
-        if self.ns.density > self.MAX_PERCENT:
-            sys.stderr.write("wow, density such over 100%, too high\n")
-            sys.exit(1)
-
-        if self.ns.density < 0:
-            sys.stderr.write("wow, density such negative, too low\n")
-            sys.exit(1)
 
         if self.tty.width < max_doge:
             # Shibe won't fit, so abort.
@@ -94,7 +107,7 @@ class Doge:
         self.apply_text()
         return True
 
-    def setup_seasonal(self):
+    def setup_seasonal(self) -> None:
         """Handle seasonal holidays.
 
         Check if there's some seasonal holiday going on, setup appropriate
@@ -104,12 +117,12 @@ class Doge:
         the first one takes precedence.
         """
         # If we've specified a season, just run that one
-        if self.ns.season:
-            return self.load_season(self.ns.season)
+        if self.config.season:
+            return self.load_season(self.config.season)
 
         # If we've specified another doge or no doge at all, it does not make
         # sense to use seasons.
-        if self.ns.doge_path is not None and not self.ns.no_shibe:
+        if self.config.doge_path is not None or self.config.no_shibe:
             return None
 
         tz = dateutil.tz.tzlocal()
@@ -117,13 +130,13 @@ class Doge:
 
         for season, data in wow.SEASONS.items():
             start, end = data["dates"]
-            start_dt = datetime.datetime(now.year, start[0], start[1], tzinfo=tz)
+            start_dt = datetime.datetime(now.year, start.month, start.day, tzinfo=tz)
 
             # Be sane if the holiday season spans over New Year's day.
             end_dt = datetime.datetime(
-                now.year + 1 if start[0] > end[0] else now.year,
-                end[0],
-                end[1],
+                now.year + 1 if start.month > end.month else now.year,
+                end.month,
+                end.day,
                 tzinfo=tz,
             )
 
@@ -132,7 +145,7 @@ class Doge:
                 return self.load_season(season)
         return None
 
-    def load_season(self, season_key):
+    def load_season(self, season_key: str) -> None:
         """Try to load a season, unless 'none' given."""
         if season_key == "none":
             return
@@ -141,43 +154,46 @@ class Doge:
         self.doge_path = ROOT.joinpath(season["pic"])
         self.words.extend(season["words"])
 
-    def apply_text(self):
+    def apply_text(self) -> None:
         """Apply text around doge."""
         # Calculate a random sampling of lines that are to have text applied
         # onto them. Return value is a sorted list of line index integers.
         line_len = len(self.lines)
 
-        if self.ns.density == 0:
+        if not self.words:
+            self.words.append("wow")
+
+        if self.config.density == 0:
             return
 
         affected = sorted(
-            random.sample(range(line_len), int(line_len * (self.ns.density / 100)))
+            random.sample(range(line_len), int(line_len * (self.config.density / 100)))
         )
 
         for i, target in enumerate(affected, start=1):
             line = self.lines[target]
-            line = re.sub("\n", " ", line)
+            line = line.replace("\n", " ")
 
             word = self.words.get()
 
             # If first or last line, or a random selection, use standalone wow.
-            if i == 1 or i == len(affected) or random.choice(range(20)) == 0:
+            if i == 1 or i == len(affected) or random.randrange(20) == 0:
                 word = "wow"
 
             # Generate a new DogeMessage, possibly based on a word.
-            self.lines[target] = DogeMessage(self, line, word).generate()
+            self.lines[target] = DogeMessage(self.tty, line, word).generate()
 
-    def load_doge(self):
+    def load_doge(self) -> list[str]:
         """Return pretty ASCII Shibe.
 
         wow
         """
-        if self.ns.no_shibe:
+        if self.config.no_shibe:
             return [""]
 
         return self.doge_path.read_text(encoding="utf-8").splitlines(keepends=True)
 
-    def get_real_data(self):
+    def get_real_data(self) -> None:
         """Grab actual data from the system."""
         ret = []
         with contextlib.suppress(OSError):
@@ -200,9 +216,10 @@ class Doge:
                 ret.append(os_id)
 
         # Grab actual files from $HOME.
-        filenames = [x.name for x in Path.home().iterdir()]
-        if filenames:
-            ret.append(random.choice(filenames))
+        with contextlib.suppress(OSError):
+            filenames = [x.name for x in Path.home().iterdir()]
+            if filenames:
+                ret.append(random.choice(filenames))
 
         # Grab some processes
         ret += self.get_processes()[:2]
@@ -211,21 +228,23 @@ class Doge:
         self.words.extend(map(str.lower, ret))
 
     @staticmethod
-    def filter_words(words, stopwords, min_length):
+    def filter_words(
+        words: list[str], stopwords: Collection[str], min_length: int
+    ) -> list[str]:
         """Filter out unwanted words."""
         return [
             word for word in words if len(word) >= min_length and word not in stopwords
         ]
 
-    def get_stdin_data(self):
+    def get_stdin_data(self) -> bool:
         """Get words from stdin."""
         if not self.tty.in_is_pipe:
             # No pipez found
             return False
 
-        stdin_lines = (line for line in sys.stdin.readlines())
+        stdin_lines = sys.stdin.readlines()
 
-        rx_word = re.compile(r"\w+", re.UNICODE)
+        rx_word = re.compile(r"\w+(?:'\w+)*", re.UNICODE)
 
         # If we have stdin data, we should remove everything else!
         self.words.clear()
@@ -234,16 +253,16 @@ class Doge:
             for line in stdin_lines
             for match in rx_word.finditer(line.lower())
         ]
-        if self.ns.filter_stopwords:
+        if self.config.filter_stopwords:
             word_list = self.filter_words(
-                word_list, stopwords=wow.STOPWORDS, min_length=self.ns.min_length
+                word_list, stopwords=wow.STOPWORDS, min_length=self.config.min_length
             )
 
         self.words.extend(word_list)
 
         return True
 
-    def get_processes(self):
+    def get_processes(self) -> list[str]:
         """Grab a shuffled list of all currently running process names."""
         processes = set()
         try:
@@ -268,7 +287,7 @@ class Doge:
         random.shuffle(proc_list)
         return proc_list
 
-    def print_doge(self):
+    def print_doge(self) -> None:
         """Print doge to terminal."""
         for line in self.lines:
             sys.stdout.write(line)
@@ -278,13 +297,12 @@ class Doge:
 class DogeMessage:
     """Make a randomly placed and randomly colored message."""
 
-    def __init__(self, doge, occupied, word):
-        self.doge = doge
-        self.tty = doge.tty
+    def __init__(self, tty: TTYHandler, occupied: str, word: str) -> None:
+        self.tty = tty
         self.occupied = occupied
         self.word = word
 
-    def generate(self):
+    def generate(self) -> str:
         """Add a word to a line, with color, random prefix and suffix."""
         if self.word == "wow":
             # Standalone wow. Don't apply any prefixes or suffixes.
@@ -294,7 +312,7 @@ class DogeMessage:
             msg = f"{wow.PREFIXES.get()} {self.word}"
 
             # Seldomly add a suffix as well.
-            if random.choice(range(15)) == 0:
+            if random.randrange(15) == 0:
                 msg += f" {wow.SUFFIXES.get()}"
 
         # Calculate the maximum possible spacer
@@ -309,7 +327,7 @@ class DogeMessage:
             return self.occupied + "\n"
 
         # Apply spacing
-        spacer = " " * random.choice(range(interval))
+        spacer = " " * random.randrange(interval)
         msg = f"{spacer}{msg}"
 
         if self.tty.pretty:
@@ -323,15 +341,12 @@ class DogeMessage:
 class TTYHandler:
     """Get terminal properties."""
 
-    def __init__(self):
-        self.height = 25
-        self.width = 80
-        self.in_is_pipe = False
-        self.out_is_tty = True
-        self.pretty = True
-
-    def setup(self):
-        """Calculate terminal properties."""
+    def __init__(
+        self,
+        *,
+        max_height: int | None = None,
+        max_width: int | None = None,
+    ) -> None:
         self.width, self.height = shutil.get_terminal_size()
         self.in_is_pipe = (not sys.stdin.isatty()) if sys.stdin else False
         self.out_is_tty = sys.stdout.isatty()
@@ -339,35 +354,65 @@ class TTYHandler:
         self.pretty = self.out_is_tty
         if sys.platform == "win32":
             colorterm = os.getenv("COLORTERM", "").lower()
-            self.pretty = (
+            self.pretty = self.out_is_tty and (
                 "WT_SESSION" in os.environ
                 or colorterm in {"truecolor", "24bit"}
                 or os.getenv("TERM") == "xterm"
             )
 
+        if max_height:
+            self.height = max_height
+        if max_width:
+            self.width = max_width
 
-def clean_len(s):
-    """Calculate the length of a string without its color codes."""
+
+def clean_len(s: str) -> int:
+    """Calculate the visible width of a string without its color codes."""
     s = re.sub(r"\x1b\[[0-9;]*m", "", s)
 
-    return len(s)
+    return onscreen_len(s)
 
 
-def onscreen_len(s):
+DOUBLE_WIDTH_CATEGORIES = {"W", "F"}
+
+
+def onscreen_len(s: str) -> int:
     """Calculate the length of a unicode string on screen.
 
     Also account for double-width characters.
     """
-    length = 0
-    for ch in s:
-        length += 2 if unicodedata.east_asian_width(ch) == "W" else 1
+    return sum(
+        2 if unicodedata.east_asian_width(ch) in DOUBLE_WIDTH_CATEGORIES else 1
+        for ch in s
+    )
 
-    return length
+
+def _positive_int(value: str) -> int:
+    """Argparse type for positive integers."""
+    n = int(value)
+    if n <= 0:
+        msg = f"wow {value} is not positive, such fail"
+        raise argparse.ArgumentTypeError(msg)
+    return n
 
 
-def setup_arguments():
+_MAX_DENSITY = 100
+
+
+def _density(value: str) -> float:
+    """Argparse type for density percentage (0-100)."""
+    n = float(value)
+    if not 0 <= n <= _MAX_DENSITY:
+        msg = f"wow density {value} out of range, must be 0-{_MAX_DENSITY}"
+        raise argparse.ArgumentTypeError(msg)
+    return n
+
+
+def setup_arguments() -> argparse.ArgumentParser:
     """Make an ArgumentParser."""
     parser = argparse.ArgumentParser("doge", description=__doc__)
+    parser.register("type", "positive integer", _positive_int)
+    parser.register("type", "density percentage", _density)
 
     parser.add_argument(
         "--shibe",
@@ -385,66 +430,73 @@ def setup_arguments():
     )
 
     parser.add_argument(
-        "-f", "--frequency", help="such frequency based", action="store_true"
+        "-f", "--frequency", help="such frequency based word pick", action="store_true"
     )
 
     parser.add_argument(
         "--step",
-        help="beautiful step",  # how much to step
+        help="beautiful frequency step size",  # how much to step
         #  between ranks in FrequencyBasedDogeDeque
-        type=int,
+        type="positive integer",
         default=2,
     )
 
     parser.add_argument(
         "--min_length",
-        help="pretty minimum",  # minimum length of a word
-        type=int,
+        help="pretty minimum word length",  # minimum length of a word
+        type="positive integer",
         default=1,
     )
 
     parser.add_argument(
-        "-s", "--filter_stopwords", help="many words lol", action="store_true"
+        "-s",
+        "--filter_stopwords",
+        help="many filter common input words lol",
+        action="store_true",
     )
 
     parser.add_argument(
         "-mh",
         "--max-height",
         help="such max height",
-        type=int,
+        type="positive integer",
     )
 
     parser.add_argument(
         "-mw",
         "--max-width",
         help="such max width",
-        type=int,
+        type="positive integer",
     )
 
     parser.add_argument(
         "-d",
         "--density",
         help="such word density percent, max is 100, default is 30, wow",
-        type=float,
+        type="density percentage",
         default=30,
     )
     return parser
 
 
-def main():
+def main() -> int:
     """Run the main CLI script."""
-    tty = TTYHandler()
-    tty.setup()
-
     parser = setup_arguments()
     ns = parser.parse_args()
-    if ns.max_height:
-        tty.height = ns.max_height
-    if ns.max_width:
-        tty.width = ns.max_width
+    tty = TTYHandler(max_height=ns.max_height, max_width=ns.max_width)
+    config = DogeConfig(
+        doge_path=ns.doge_path,
+        no_shibe=ns.no_shibe,
+        season=ns.season,
+        frequency=ns.frequency,
+        step=ns.step,
+        density=ns.density,
+        filter_stopwords=ns.filter_stopwords,
+        min_length=ns.min_length,
+    )
 
     try:
-        shibe = Doge(tty, ns)
+        shibe = Doge(tty, config)
         if not shibe.setup():
             # We assume that setup() prints what went wrong.
             return 1
