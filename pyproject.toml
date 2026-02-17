@@ -1,6 +1,6 @@
 [project]
 name = "doge"
-version = "3.9.1"
+version = "3.9.2"
 description = "wow very terminal doge"
 authors = [{ name = "Olivia Thiderman", email = "olivia@thiderman.org" }]
 urls = { Homepage = "https://github.com/Olivia5k/doge" }
