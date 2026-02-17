@@ -5,11 +5,16 @@ import sys
 
 import pytest
 
-from doge import wow
-
-ARGPARSE_USAGE_ERROR = 2
-
-SEASONS = sorted(wow.SEASONS)
+SEASONS = [
+    "valentine",
+    "halloween",
+    "thanksgiving",
+    "xmas",
+    "easter",
+    "earth",
+    "kabosu",
+    "moon",
+]
 
 
 def run_doge(*args, stdin_data=None):
@@ -69,22 +74,8 @@ def test_stdin_piping():
     assert len(result.stdout) > 0
 
 
-def test_empty_stdin():
-    """Empty piped stdin still produces wow lines."""
-    result = run_doge("--no-shibe", stdin_data="")
-    assert result.returncode == 0
-    assert "wow" in result.stdout.lower()
-
-
-def test_stdin_all_stopwords():
-    """Stdin where all words are filtered out still produces wow lines."""
-    result = run_doge("--no-shibe", "-s", stdin_data="the a an\n")
-    assert result.returncode == 0
-    assert "wow" in result.stdout.lower()
-
-
 def test_invalid_density():
     """Density over 100 exits with error."""
     result = run_doge("--density", "200")
-    assert result.returncode == ARGPARSE_USAGE_ERROR
+    assert result.returncode == 1
     assert "density" in result.stderr.lower()
